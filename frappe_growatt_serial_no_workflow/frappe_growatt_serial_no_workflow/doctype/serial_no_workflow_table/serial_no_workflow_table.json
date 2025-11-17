@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-17 11:58:21.446522",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "serial_no",
+  "item_name",
+  "item_code",
+  "company",
+  "current_workflow_state",
+  "next_step",
+  "output_info",
+  "is_success",
+  "is_valid"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Serial No.",
+   "options": "Serial No",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "serial_no.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Item Name",
+   "link_filters": "[[\"item_code\",\"item_group\",\"descendants of (inclusive)\",\"Inverter\"],[\"Item\",\"disabled\",\"=\",0]]",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "description": "[[\"Item\",\"item_group\",\"descendants of (inclusive)\",\"Inverter\"],[\"Item\",\"disabled\",\"=\",0]]",
+   "fetch_from": "item_name.item_code",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Item Code",
+   "link_filters": "[\"Item\",\"item_code\"]",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fetch_from": "serial_no.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fetch_from": "serial_no.workflow_state",
+   "fieldname": "current_workflow_state",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Current Workflow State",
+   "read_only": 1,
+   "set_only_once": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "next_step",
+   "fieldtype": "Link",
+   "label": "Next Workflow State",
+   "options": "Workflow State",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "output_info",
+   "fieldtype": "Data",
+   "label": "Output Info.",
+   "read_only": 1,
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "is_success",
+   "fieldtype": "Check",
+   "label": "Is successful?"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "is_valid",
+   "fieldtype": "Check",
+   "label": "Is valid?"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-17 13:30:40.485200",
+ "modified_by": "Administrator",
+ "module": "Frappe Growatt Serial No Workflow",
+ "name": "Serial No Workflow Table",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
