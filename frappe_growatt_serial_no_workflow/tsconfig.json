@@ -1,0 +1,39 @@
+    {
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./js",
+    "module": "preserve",
+    "target": "ESNext",
+    "esModuleInterop": false,
+    "importHelpers": false,
+    "noEmitHelpers": true,
+    "verbatimModuleSyntax": false,
+    "types": [
+      "jquery",
+      "@anygridtech/frappe-agt-types",
+      "@anygridtech/frappe-types"
+    ],
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "removeComments": true,
+    "strict": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force"
+  },
+  "include": ["ts/**/*.ts", "**/ts/**/*.ts"],
+  "exclude": ["node_modules", "**/__bundle_entry__.ts"],
+  "watchOptions": {
+    "watchFile": "fixedPollingInterval",
+    "watchDirectory": "fixedPollingInterval",
+    "fallbackPolling": "dynamicPriority"
+  }
+}
