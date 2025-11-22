@@ -1,7 +1,7 @@
 // Copyright (c) 2025, AnyGridTech and contributors
 // For license information, please see license.txt
 let is_force_state_allowed = false;
-let allowedRoles = ["IT", "Administrator", "System Manager"];
+let allowedRoles = ["Information Technology User", "Administrator", "System Manager"];
 const OUTPUT_INFO_MESSAGE = {
   SN_NOT_FOUND: "SN n\xE3o encontrado.",
   SN_FOUND_ERP: "SN encontrado na base do ERPNext.",

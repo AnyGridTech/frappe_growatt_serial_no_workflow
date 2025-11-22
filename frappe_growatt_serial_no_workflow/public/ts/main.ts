@@ -4,7 +4,7 @@ import { SerialNo, SerialNoWorkflow, Workflow } from "@anygridtech/frappe-agt-ty
 import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";
 
 let is_force_state_allowed: boolean = false;
-let allowedRoles = ['IT', 'Administrator', 'System Manager'];
+let allowedRoles = ['Information Technology User', 'Administrator', 'System Manager'];
 
 const OUTPUT_INFO_MESSAGE = {
   SN_NOT_FOUND: "SN não encontrado.",
