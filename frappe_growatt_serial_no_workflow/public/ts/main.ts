@@ -1,6 +1,7 @@
-import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";
+
 import { DialogInstance } from "@anygridtech/frappe-types/client/frappe/ui/Dialog";
 import { SerialNo, SerialNoWorkflow, Workflow } from "@anygridtech/frappe-agt-types/agt/doctype";
+import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";
 
 let is_force_state_allowed: boolean = false;
 let allowedRoles = ['IT', 'Administrator', 'System Manager'];
@@ -43,13 +44,14 @@ frappe.ui.form.on('Serial No Workflow', {
 
     form.set_df_property('next_step', 'options', next_step_options); // Define as opções do campo 'next_step' no formulário.
 
-    async function OnClickValidate(dialog: DialogInstance) {          
+    async function OnClickValidate(dialog: DialogInstance) {
       const serialNumberField = dialog.get_field('serialno_text-field'); // Obtém o campo de texto com os números de série.
-      const serialNumbers = serialNumberField
-        .get_value()
-        ?.split('\n') // Divide o texto em um array de números de série, separados por quebra de linha.
-        .map((sn: string) => sn.trim()) // Remove espaços em branco do início e fim de cada número de série.
-        .filter((sn: string) => sn !== ''); // Remove linhas vazias.
+      const serialNumbers = (serialNumberField && typeof serialNumberField['get_value'] === 'function')
+        ? String(serialNumberField['get_value']() || '')
+            .split('\n')
+            .map((sn: string) => sn.trim())
+            .filter((sn: string) => sn !== '')
+        : [];
 
       if (!serialNumbers || serialNumbers.length === 0) {
         frappe.msgprint('⚠️ Por favor, insira um número de série.'); // Exibe mensagem se nenhum número de série for inserido.
@@ -69,7 +71,7 @@ frappe.ui.form.on('Serial No Workflow', {
       })
       modal.set_state('waiting');
 
-      dialog.get_field('serialno_validate').df.disabled = 1; // Desabilita o botão "Validar" para evitar cliques múltiplos.
+      dialog.get_field('serialno_validate')['df'].disabled = 1; // Desabilita o botão "Validar" para evitar cliques múltiplos.
       form.refresh(); // Atualiza a interface do diálogo.
       dialog.hide(); // close the previous dialogue
       dialog.clear(); // clear the previous dialogue 
@@ -212,7 +214,7 @@ frappe.ui.form.on('Serial No Workflow', {
         modal.set_message(`<div style='color:red;'>❌ Erro geral: ${error}</div>`);
         modal.set_state('default');
       } finally {
-        dialog.get_field('serialno_validate').df.disabled = 0; // Allow "Validate" button again.
+        dialog.get_field('serialno_validate')['df'].disabled = 0; // Allow "Validate" button again.
         form.refresh(); // Update dialogue's interface.
       }
     }
@@ -234,12 +236,12 @@ frappe.ui.form.on('Serial No Workflow', {
                     dialog: true,
                     multiple: false,
                     on_scan(data) {
-                      // growatt.utils.refresh_dialog_stacking();
+                      // agt.utils.refresh_dialog_stacking();
                       if (data && data.result && data.result.text) {
                         const snField = dialog?.get_field('serialno_text-field');
-                        const currentValue = snField?.get_value() || '';
+                        const currentValue = String(snField?.['get_value']() ?? '');
                         const newValue = currentValue ? currentValue + '\n' + data.result.text : data.result.text;
-                        snField?.set_input(newValue);
+                        snField?.['set_input'](newValue);
                       }
                     }
                   });
@@ -279,11 +281,11 @@ frappe.ui.form.on('Serial No Workflow', {
 
 agt.utils.dialog.close_all(); // Fecha todos os dialogos antes de chamar a função on click validate
 
-frappe.ui.form.on('Serial No Workflow', {
-  next_step: async function (form) {
-    // O evento next_step não precisa realizar ações agora. A ação selecionada é usada diretamente em outras funções.
-  }
-});
+// frappe.ui.form.on('Serial No Workflow', {
+//   next_step: async function (form) {
+//     // O evento next_step não precisa realizar ações agora. A ação selecionada é usada diretamente em outras funções.
+//   }
+// });
 
 async function CheckSerialNumber(
   sn: string
