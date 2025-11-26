@@ -72,10 +72,10 @@
           let companyName = "";
           let isValid = false;
           let outputInfo = "";
-          if (!agt.growatt || !agt.growatt.sn_regex || typeof agt.growatt.sn_regex.test !== "function") {
-            message = `<b>${serialNumber}:</b>\u274C Erro interno: Express\xE3o regular de SN n\xE3o est\xE1 dispon\xEDvel.`;
-            outputInfo = "Erro interno: sn_regex n\xE3o dispon\xEDvel.";
-          } else if (!agt.growatt.sn_regex.test(serialNumber)) {
+          if (typeof agt.utils.validate_serial_number !== "function") {
+            message = `<b>${serialNumber}:</b>\u274C Erro interno: Fun\xE7\xE3o de valida\xE7\xE3o de SN n\xE3o est\xE1 dispon\xEDvel.`;
+            outputInfo = "Erro interno: validate_serial_number n\xE3o dispon\xEDvel.";
+          } else if (!agt.utils.validate_serial_number(serialNumber)) {
             message = `<b>${serialNumber}:</b>\u26A0\uFE0F N\xFAmero de s\xE9rie inv\xE1lido.`;
             outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID;
           } else {
