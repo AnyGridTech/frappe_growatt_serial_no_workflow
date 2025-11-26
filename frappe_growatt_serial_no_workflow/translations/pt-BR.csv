@@ -14,3 +14,29 @@ Next Workflow State,Próximo Estado do Fluxo de Trabalho
 Output Info.,Informações de Saída
 Is successful?,Foi bem-sucedido?
 Is valid?,É válido?
+SN not found.,SN não encontrado.
+SN found in ERPNext database.,SN encontrado na base do ERPNext.
+SN found in Growatt database.,SN encontrado na base da Growatt.
+Invalid serial number.,Número de série inválido.
+Duplicated serial number.,Número de série duplicado.
+Input validation error.,Erro ao validar entrada.
+Invalid workflow state transition.,Transição de workflow state inválida.
+Please enter a serial number.,Por favor, insira um número de série.
+Please select the next workflow step.,Por favor, selecione o próximo passo do workflow.
+Workflow not found.,Workflow não encontrado.
+Validating SN...,Validando SN...
+Analysis Finished,Análise Finalizada
+Could not start the scanner. Check camera permissions or if a camera is available.,Não foi possível iniciar o scanner. Verifique as permissões da câmera ou se há uma câmera disponível.
+Manually enter the serial number or scan the barcode.,Insira o número de série manualmente ou escaneie o código de barras.
+Error opening the SN addition window. Check the console for details.,Erro ao abrir a janela de adição de SN. Verifique o console para detalhes.
+Force Workflow state <b>ENABLED</b>.,Forçar estado do Workflow <b>HABILITADO</b>.
+Force Workflow state <b>DISABLED</b>.,Forçar estado do Workflow <b>DESABILITADO</b>.
+You do not have permission to force the Workflow state.,Você não tem permissão para forçar o estado do Workflow.
+Initial Workflow state not found.,Estado inicial do Workflow não encontrado.
+Process aborted due to invalid transition for existing SN.,Processo abortado devido a transição inválida para SN existente.
+Process aborted due to incomplete data.,Processo abortado devido a dados incompletos.
+Error validating serial number.,Erro ao validar o número de série.
+Error adding serial number.,Erro ao adicionar o número de série.
+Serial Number {0} was successfully added to the database.,Número de Série {0} foi adicionado com sucesso ao banco de dados.
+Failed to update workflow_state to {0} for SN {1}.,Falha ao atualizar workflow_state para {0} no SN {1}.
+Invalid state transition for SN: {0}. Current state: {1}, Next selected: {2}. Allowed: {3}.,Transição de estado inválida para SN: {0}. Estado atual: {1}, Próximo selecionado: {2}. Permitidos: {3}.

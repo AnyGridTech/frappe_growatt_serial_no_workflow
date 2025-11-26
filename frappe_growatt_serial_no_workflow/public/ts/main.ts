@@ -1,9 +1,10 @@
-"use strict"
-// Importa a função de tradução do Frappe
-declare const __: (text: string, args?: any[]) => string;
+
+
 import { DialogInstance } from "@anygridtech/frappe-types/client/frappe/ui/Dialog";
 import { SerialNo, SerialNoWorkflow, Workflow } from "@anygridtech/frappe-agt-types/agt/doctype";
 import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";
+// Importa a função de tradução do Frappe
+declare const __: (text: string, args?: any[]) => string;
 
 let is_force_state_allowed: boolean = false;
 let allowedRoles = ['Information Technology User', 'Administrator', 'System Manager'];
@@ -21,33 +22,16 @@ const OUTPUT_INFO_MESSAGE = {
 frappe.ui.form.on('Serial No Workflow', {
   refresh: async function (form) {
     form.set_df_property('next_step', 'options', []); // Limpa as opções anteriores do campo 'next_step'.
-    // Busca o workflow relacionado ao doctype 'Serial No' e que está ativo
     const sn_workflow = await frappe
       .call<{ docs: Workflow[] }>({
-        method: 'frappe.client.get_list',
+        method: 'frappe.desk.form.load.getdoc', // Método padrão do Frappe para carregar um documento.
         args: {
-          doctype: 'Workflow',
-          filters: [
-            ["Workflow", "reference_doctype", "=", "Serial No"],
-            ["Workflow", "is_active", "=", 1]
-          ],
-          limit_page_length: 1
+          doctype: 'Workflow', // Carrega o Doctype Workflow.
+          name: 'workflow_serial_no' // Carrega o Workflow específico chamado 'workflow_serial_no'.
         }
       })
-      .catch(e => console.error(e))
-      .then(async r => {
-        if (r?.docs && Array.isArray(r.docs) && r.docs.length && r.docs[0]?.name) {
-          // Carrega o documento completo do workflow encontrado
-          return await frappe.call<{ docs: Workflow[] }>({
-            method: 'frappe.desk.form.load.getdoc',
-            args: {
-              doctype: 'Workflow',
-              name: r.docs[0].name
-            }
-          }).then(res => res?.docs[0]);
-        }
-        return null;
-      });
+      .catch(e => console.error(e)) // Captura e exibe erros no console, caso ocorram.
+      .then(r => r?.docs[0]); // Extrai o primeiro documento retornado (deve ser o nosso Workflow).
 
     if (!sn_workflow) return frappe.throw(__('Workflow not found.'));
     const workflow_transitions = sn_workflow.transitions // Obtém as transições definidas no Workflow.

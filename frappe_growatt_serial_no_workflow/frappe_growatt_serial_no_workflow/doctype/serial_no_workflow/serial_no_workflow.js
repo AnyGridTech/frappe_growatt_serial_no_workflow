@@ -2,17 +2,17 @@
 // For license information, please see license.txt
 "use strict";
 (() => {
-  // doctype/serial_no_workflow/ts/main.ts
+  // frappe_growatt_serial_no_workflow/doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = ["Information Technology User", "Administrator", "System Manager"];
   var OUTPUT_INFO_MESSAGE = {
-    SN_NOT_FOUND: "SN n\xE3o encontrado.",
-    SN_FOUND_ERP: "SN encontrado na base do ERPNext.",
-    SN_FOUND_GROWATT: "SN encontrado na base da Growatt.",
-    SN_INVALID: "N\xFAmero de s\xE9rie inv\xE1lido.",
-    SN_DUPLICATED: "N\xFAmero de s\xE9rie duplicado.",
-    INPUT_VALIDATION_ERROR: "Erro ao validar entrada.",
-    INVALID_WORKFLOW_TRANSITION: "Transi\xE7\xE3o de workflow state inv\xE1lida."
+    SN_NOT_FOUND: __("SN not found."),
+    SN_FOUND_ERP: __("SN found in ERPNext database."),
+    SN_FOUND_GROWATT: __("SN found in Growatt database."),
+    SN_INVALID: __("Invalid serial number."),
+    SN_DUPLICATED: __("Duplicated serial number."),
+    INPUT_VALIDATION_ERROR: __("Input validation error."),
+    INVALID_WORKFLOW_TRANSITION: __("Invalid workflow state transition.")
   };
   frappe.ui.form.on("Serial No Workflow", {
     refresh: async function(form) {
@@ -22,7 +22,7 @@
         args: {
           doctype: "Workflow",
           filters: [
-            ["Workflow", "document_type", "=", "Serial No"],
+            ["Workflow", "reference_doctype", "=", "Serial No"],
             ["Workflow", "is_active", "=", 1]
           ],
           limit_page_length: 1
@@ -39,7 +39,7 @@
         }
         return null;
       });
-      if (!sn_workflow) return frappe.throw("Workflow not found.");
+      if (!sn_workflow) return frappe.throw(__("Workflow not found."));
       const workflow_transitions = sn_workflow.transitions;
       const user_roles = frappe.boot.user.roles;
       const next_step_options = [];
@@ -54,16 +54,16 @@
         const serialNumberField = dialog.get_field("serialno_text-field");
         const serialNumbers = serialNumberField && typeof serialNumberField["get_value"] === "function" ? String(serialNumberField["get_value"]() || "").split("\n").map((sn) => sn.trim()).filter((sn) => sn !== "") : [];
         if (!serialNumbers || serialNumbers.length === 0) {
-          frappe.msgprint("\u26A0\uFE0F Por favor, insira um n\xFAmero de s\xE9rie.");
+          frappe.msgprint(__("Please enter a serial number."));
           return;
         }
         const selectedState = form.doc.next_step;
         if (!selectedState) {
-          frappe.msgprint("\u26A0\uFE0F Por favor, selecione o pr\xF3ximo passo do workflow.");
+          frappe.msgprint(__("Please select the next workflow step."));
           return;
         }
         const modal = new agt.ui.UltraDialog({
-          title: "Validando SN...",
+          title: __("Validating SN..."),
           message: "",
           visible: false
         });
@@ -75,7 +75,7 @@
         async function validateAndDisplayMessage(serialNumber) {
           const existingSn = form.doc.serial_no_table.some((child) => child.serial_no === serialNumber);
           if (existingSn) {
-            return `<b>${serialNumber}:</b>\u274C Este n\xFAmero de s\xE9rie j\xE1 foi inserido.`;
+            return `<b>${serialNumber}:</b>\u274C ${__("Duplicated serial number.")}`;
           }
           let message = "";
           let modelInfo = "";
@@ -84,7 +84,7 @@
           let isValid = false;
           let outputInfo = "";
           if (!agt.growatt.sn_regex.test(serialNumber)) {
-            message = `<b>${serialNumber}:</b>\u26A0\uFE0F N\xFAmero de s\xE9rie inv\xE1lido.`;
+            message = `<b>${serialNumber}:</b>\u26A0\uFE0F ${__("Invalid serial number.")}`;
             outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID;
           } else {
             try {
@@ -109,7 +109,7 @@
                 }
                 isValid = true;
               } else if (item && !snInfo) {
-                message = `<b>${serialNumber}:</b>\u2714\uFE0F SN encontrado na base da Growatt.`;
+                message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__("SN found in Growatt database.")}`;
                 outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
                 modelInfo = item.item_code;
                 modelName = item.item_name;
@@ -122,14 +122,14 @@
                 );
                 if (!available_transitions.length && !is_force_state_allowed) {
                   const allowedStates = workflow_transitions.filter((t) => t.state === snInfo.workflow_state).map((t) => t.next_state).filter((value, index, self) => self.indexOf(value) === index);
-                  message = `<b>${serialNumber}:</b>\u274C SN encontrado no ERP, mas a transi\xE7\xE3o de status \xE9 inv\xE1lida. <b>Estado atual: </b> ${snInfo.workflow_state}, <b>Pr\xF3ximo selecionado: </b> ${selectedState}. <b>Estado(s) permitido(s): </b> ${allowedStates.join(", ")}.`;
+                  message = `<b>${serialNumber}:</b>\u274C ` + __("Invalid state transition for SN: {0}. Current state: {1}, Next selected: {2}. Allowed: {3}.", [serialNumber, snInfo.workflow_state, selectedState, allowedStates.join(", ")]);
                   outputInfo = OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION;
                   isValid = false;
                 }
               }
               const existingSn2 = form.doc.serial_no_table.some((child2) => child2.serial_no === serialNumber);
               if (existingSn2) {
-                message = `<b>${serialNumber}:</b>\u274C Este n\xFAmero de s\xE9rie j\xE1 foi inserido.`;
+                message = `<b>${serialNumber}:</b>\u274C ${__("Duplicated serial number.")}`;
                 outputInfo = OUTPUT_INFO_MESSAGE.SN_DUPLICATED;
                 isValid = false;
               }
@@ -150,8 +150,8 @@
               form.refresh_field("serial_no_table");
             } catch (error) {
               console.error("Erro ao validar o n\xFAmero de s\xE9rie:", error);
-              message = `<b>${serialNumber}:</b>\u274C Erro ao validar.`;
-              outputInfo = "Erro ao validar.";
+              message = `<b>${serialNumber}:</b>\u274C ${__("Error validating serial number.")}`;
+              outputInfo = __("Error validating serial number.");
               const existingEmptyRow = form.doc.serial_no_table.find((child2) => !child2.serial_no);
               const child = existingEmptyRow || frappe.model.add_child(form.doc, "serial_no_table");
               child.serial_no = serialNumber;
@@ -172,12 +172,12 @@
             modal.visible(true);
             modal.set_state("waiting");
           }
-          modal.set_title("An\xE1lise Finalizada");
-          modal.set_message("<div style='color:green;'>\u2714\uFE0F Processo finalizado!</div>");
+          modal.set_title(__("Analysis Finished"));
+          modal.set_message("<div style='color:green;'>\u2714\uFE0F " + __("Process finished!") + "</div>");
           modal.set_state("default");
         } catch (error) {
-          modal.set_title("An\xE1lise Finalizada");
-          modal.set_message(`<div style='color:red;'>\u274C Erro geral: ${error}</div>`);
+          modal.set_title(__("Analysis Finished"));
+          modal.set_message(`<div style='color:red;'>\u274C ` + __("General error: {0}", [error]) + `</div>`);
           modal.set_state("default");
         } finally {
           dialog.get_field("serialno_validate")["df"].disabled = 0;
@@ -185,13 +185,13 @@
         }
       }
       form.fields_dict["add_sn"]?.$wrapper?.off("click").on("click", () => {
-        const diagTitle = "Adicionar SN";
+        const diagTitle = __("Add SN");
         try {
           const dialog = agt.utils.dialog.load({
             title: diagTitle,
             fields: [
               {
-                label: `<b>\u{1F4F7} Escanear c\xF3digo de barras</b><p><span class="text-muted small" style="font-size: 0.7em;">Clique para ativar o scanner de c\xF3digo de barras.</span></p>`,
+                label: `<b>\u{1F4F7} ` + __("Scan barcode") + `</b><p><span class="text-muted small" style="font-size: 0.7em;">` + __("Click to activate barcode scanner.") + `</span></p>`,
                 fieldname: "serialno_scan-barcode",
                 fieldtype: "Button",
                 reqd: false,
@@ -211,19 +211,19 @@
                     });
                   } catch (scannerError) {
                     console.error("Error initializing scanner:", scannerError);
-                    frappe.msgprint(__("N\xE3o foi poss\xEDvel iniciar o scanner. Verifique as permiss\xF5es da c\xE2mera ou se h\xE1 uma c\xE2mera dispon\xEDvel."));
-                    frappe.show_alert({ message: "N\xE3o foi poss\xEDvel iniciar o scanner. Verifique as permiss\xF5es da c\xE2mera ou se h\xE1 uma c\xE2mera dispon\xEDvel.", indicator: "red" });
+                    frappe.msgprint(__("Could not start the scanner. Check camera permissions or if a camera is available."));
+                    frappe.show_alert({ message: __("Could not start the scanner. Check camera permissions or if a camera is available."), indicator: "red" });
                   }
                 }
               },
               {
-                label: `<b>Serial Number</b>`,
+                label: `<b>` + __("Serial Number") + `</b>`,
                 fieldname: "serialno_text-field",
                 fieldtype: "Text",
-                placeholder: "Insira o n\xFAmero de s\xE9rie manualmente ou escaneie o c\xF3digo de barras."
+                placeholder: __("Manually enter the serial number or scan the barcode.")
               },
               {
-                label: "Validar",
+                label: __("Validate"),
                 fieldname: "serialno_validate",
                 fieldtype: "Button",
                 reqd: false,
@@ -237,7 +237,7 @@
           });
         } catch (error) {
           console.error("Error creating or showing the 'Adicionar SN' dialog:", error);
-          frappe.msgprint(__("Erro ao abrir a janela de adi\xE7\xE3o de SN. Verifique o console para detalhes."));
+          frappe.msgprint(__("Error opening the SN addition window. Check the console for details."));
         }
       });
     }
@@ -287,7 +287,7 @@
     const workflowDoc = await frappe.db.get_doc("Workflow", "workflow_serial_no");
     const initialState = workflowDoc.states?.[0]?.state;
     if (!initialState) {
-      frappe.throw("Estado inicial do Workflow n\xE3o encontrado.");
+      frappe.throw(__("Initial Workflow state not found."));
     }
     const outputsMap = {
       [OUTPUT_INFO_MESSAGE.SN_FOUND_ERP]: true,
@@ -305,8 +305,8 @@
     for (const snRow of successfulSerialNumbers) {
       if (!snRow.serial_no || !snRow.next_step) {
         console.warn("Dados incompletos para o SN:", snRow);
-        frappe.msgprint(`\u274C Dados incompletos para o SN ${snRow.serial_no}.`);
-        throw "Processo abortado devido a dados incompletos.";
+        frappe.msgprint(__("Process aborted due to incomplete data."));
+        throw __("Process aborted due to incomplete data.");
       }
       const currentState = snRow.current_workflow_state || initialState;
       let targetState;
@@ -325,10 +325,8 @@
         } else {
           const allowedStates = workflowDoc.transitions.filter((t) => t.state === currentState).map((t) => t.next_state).filter((value, index, self) => self.indexOf(value) === index);
           console.warn(`Transi\xE7\xE3o n\xE3o encontrada para SN existente ${snRow.serial_no}.`);
-          frappe.msgprint(
-            `\u274C Transi\xE7\xE3o de estado inv\xE1lida para SN: ${snRow.serial_no}. Estado atual: ${currentState}, Pr\xF3ximo selecionado: ${snRow.next_step}. Permitidos: ${allowedStates.join(", ")}.`
-          );
-          throw "Processo abortado devido a transi\xE7\xE3o inv\xE1lida para SN existente.";
+          frappe.msgprint(__("Invalid state transition for SN: {0}. Current state: {1}, Next selected: {2}. Allowed: {3}.", [snRow.serial_no, currentState, snRow.next_step, allowedStates.join(", ")]));
+          throw __("Process aborted due to invalid transition for existing SN.");
         }
       }
       operations.push({
@@ -351,7 +349,7 @@
             // Cria com o estado padrão do sistema.
           });
           if (newSN) {
-            frappe.msgprint(`\u2714\uFE0F N\xFAmero de S\xE9rie ${op.sn} foi adicionado com sucesso ao banco de dados.`);
+            frappe.msgprint(__("Serial Number {0} was successfully added to the database.", [op.sn]));
             form.doc.serial_no_table.filter((child) => child.serial_no === op.sn).forEach((child) => child.is_success = 1), form.refresh_field("serial_no_table");
             await agt.utils.update_workflow_state({
               doctype: "Serial No",
@@ -363,7 +361,7 @@
           }
         } catch (error) {
           console.error(`\u274C Erro ao adicionar o n\xFAmero de s\xE9rie ${op.sn}:`, error);
-          frappe.msgprint(`\u274C Erro ao adicionar o n\xFAmero de s\xE9rie ${op.sn}.`);
+          frappe.msgprint(__("Error adding serial number."));
           throw error;
         }
       } else {
@@ -377,14 +375,11 @@
           console.log(`Workflow state atualizado para ${op.targetState} no SN existente ${op.sn}.`);
         } catch (error) {
           console.error(`\u274C Erro ao atualizar workflow state do SN ${op.sn}:`, error);
-          frappe.msgprint(`\u274C Falha ao atualizar workflow_state para ${op.targetState} no SN ${op.sn}.`);
+          frappe.msgprint(__("Failed to update workflow_state to {0} for SN {1}.", [op.targetState, op.sn]));
           throw error;
         }
       }
     }
     form.refresh_field("serial_no_table");
-  }
-})();
-eld("serial_no_table");
   }
 })();
