@@ -27,8 +27,8 @@ frappe.ui.form.on('Serial No Workflow', {
           name: 'workflow_serial_no' // Carrega o Workflow específico chamado 'workflow_serial_no'.
         }
       })
-      .catch(e => console.error(e)) // Captura e exibe erros no console, caso ocorram.
-      .then(r => r?.docs[0]); // Extrai o primeiro documento retornado (deve ser o nosso Workflow).
+      .catch(e => console.error(e))
+      .then(r => (r && Array.isArray(r.docs) && r.docs.length > 0) ? r.docs[0] : undefined); // Extrai o primeiro documento retornado (deve ser o nosso Workflow).
 
     if (!sn_workflow) return frappe.throw('Workflow not found.'); // Se o Workflow não for encontrado, lança um erro.
     const workflow_transitions = sn_workflow.transitions // Obtém as transições definidas no Workflow.
@@ -349,7 +349,7 @@ frappe.ui.form.on('Serial No Workflow', {
 async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
   // Carrega o documento do Workflow e obtém o estado inicial.
   const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', 'workflow_serial_no');
-  const initialState = (workflowDoc.states && workflowDoc.states[0]) ? workflowDoc.states[0].state : undefined;
+  const initialState = workflowDoc.states?.[0]?.state;
   if (!initialState) {
     frappe.throw('Estado inicial do Workflow não encontrado.');
   }

@@ -26,7 +26,7 @@
           name: "workflow_serial_no"
           // Carrega o Workflow específico chamado 'workflow_serial_no'.
         }
-      }).catch((e) => console.error(e)).then((r) => r?.docs[0]);
+      }).catch((e) => console.error(e)).then((r) => r && Array.isArray(r.docs) && r.docs.length > 0 ? r.docs[0] : void 0);
       if (!sn_workflow) return frappe.throw("Workflow not found.");
       const workflow_transitions = sn_workflow.transitions;
       const user_roles = frappe.boot.user.roles;
@@ -273,7 +273,7 @@
   });
   async function processSerialNumbers(form) {
     const workflowDoc = await frappe.db.get_doc("Workflow", "workflow_serial_no");
-    const initialState = workflowDoc.states && workflowDoc.states[0] ? workflowDoc.states[0].state : void 0;
+    const initialState = workflowDoc.states?.[0]?.state;
     if (!initialState) {
       frappe.throw("Estado inicial do Workflow n\xE3o encontrado.");
     }
