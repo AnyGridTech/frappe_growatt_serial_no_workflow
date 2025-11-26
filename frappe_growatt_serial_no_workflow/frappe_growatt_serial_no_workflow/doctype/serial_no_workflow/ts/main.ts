@@ -1,4 +1,4 @@
-
+"use strict"
 import { DialogInstance } from "@anygridtech/frappe-types/client/frappe/ui/Dialog";
 import { SerialNo, SerialNoWorkflow, Workflow } from "@anygridtech/frappe-agt-types/agt/doctype";
 import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";

@@ -26,7 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/frappe_growatt_serial_no_workflow/css/frappe_growatt_serial_no_workflow.css"
-app_include_js = "assets/frappe_growatt_serial_no_workflow/js/app.bundle.js"
+# app_include_js = "/assets/frappe_growatt_serial_no_workflow/js/frappe_growatt_serial_no_workflow.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/frappe_growatt_serial_no_workflow/css/frappe_growatt_serial_no_workflow.css"
