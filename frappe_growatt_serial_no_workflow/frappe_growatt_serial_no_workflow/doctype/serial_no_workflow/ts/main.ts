@@ -98,7 +98,10 @@ frappe.ui.form.on('Serial No Workflow', {
         let isValid = false;
         let outputInfo = ''; // Variável para armazenar a mensagem de output_info
 
-        if (!agt.growatt.sn_regex.test(serialNumber)) {
+        if (!agt.growatt || !agt.growatt.sn_regex || typeof agt.growatt.sn_regex.test !== 'function') {
+          message = `<b>${serialNumber}:</b>❌ Erro interno: Expressão regular de SN não está disponível.`;
+          outputInfo = "Erro interno: sn_regex não disponível.";
+        } else if (!agt.growatt.sn_regex.test(serialNumber)) {
           // Verifica se o número de série é válido usando uma expressão regular.
           message = `<b>${serialNumber}:</b>⚠️ Número de série inválido.`;
           outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID; // Define output_info para erro de regex

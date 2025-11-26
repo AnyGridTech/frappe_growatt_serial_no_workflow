@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 "use strict";
 (() => {
-  // doctype/serial_no_workflow/ts/main.ts
+  // frappe_growatt_serial_no_workflow/doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = ["Information Technology User", "Administrator", "System Manager"];
   var OUTPUT_INFO_MESSAGE = {
@@ -72,7 +72,10 @@
           let companyName = "";
           let isValid = false;
           let outputInfo = "";
-          if (!agt.growatt.sn_regex.test(serialNumber)) {
+          if (!agt.growatt || !agt.growatt.sn_regex || typeof agt.growatt.sn_regex.test !== "function") {
+            message = `<b>${serialNumber}:</b>\u274C Erro interno: Express\xE3o regular de SN n\xE3o est\xE1 dispon\xEDvel.`;
+            outputInfo = "Erro interno: sn_regex n\xE3o dispon\xEDvel.";
+          } else if (!agt.growatt.sn_regex.test(serialNumber)) {
             message = `<b>${serialNumber}:</b>\u26A0\uFE0F N\xFAmero de s\xE9rie inv\xE1lido.`;
             outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID;
           } else {
