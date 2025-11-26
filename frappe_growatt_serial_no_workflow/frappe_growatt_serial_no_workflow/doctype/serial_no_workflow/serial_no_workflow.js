@@ -176,6 +176,8 @@
           dialog.get_field("serialno_validate")["df"].disabled = 0;
           form.refresh();
         }
+        dialog.hide();
+        dialog.clear();
       }
       form.fields_dict["add_sn"]?.$wrapper?.off("click").on("click", () => {
         const diagTitle = "Adicionar SN";

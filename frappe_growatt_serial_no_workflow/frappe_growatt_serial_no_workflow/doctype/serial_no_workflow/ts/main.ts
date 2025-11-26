@@ -228,9 +228,9 @@ frappe.ui.form.on('Serial No Workflow', {
         dialog.get_field('serialno_validate')['df'].disabled = 0;
         form.refresh();
       }
-      // Só fecha/limpa o diálogo principal após a validação
-      // dialog.hide();
-      // dialog.clear();
+      //Só fecha/limpa o diálogo principal após a validação
+      dialog.hide();
+      dialog.clear();
     }
 
     form.fields_dict['add_sn']?.$wrapper?.off('click').on('click', () => {
