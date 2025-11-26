@@ -18,15 +18,27 @@
     refresh: async function(form) {
       form.set_df_property("next_step", "options", []);
       const sn_workflow = await frappe.call({
-        method: "frappe.desk.form.load.getdoc",
-        // Método padrão do Frappe para carregar um documento.
+        method: "frappe.client.get_list",
         args: {
           doctype: "Workflow",
-          // Carrega o Doctype Workflow.
-          name: "workflow_serial_no"
-          // Carrega o Workflow específico chamado 'workflow_serial_no'.
+          filters: {
+            document_type: "Serial No",
+            is_active: 1
+          },
+          limit_page_length: 1
         }
-      }).catch((e) => console.error(e)).then((r) => r && Array.isArray(r.docs) && r.docs.length > 0 ? r.docs[0] : void 0);
+      }).catch((e) => console.error(e)).then(async (r) => {
+        if (r?.docs && Array.isArray(r.docs) && r.docs.length && r.docs[0]?.name) {
+          return await frappe.call({
+            method: "frappe.desk.form.load.getdoc",
+            args: {
+              doctype: "Workflow",
+              name: r.docs[0].name
+            }
+          }).then((res) => res?.docs[0]);
+        }
+        return null;
+      });
       if (!sn_workflow) return frappe.throw("Workflow not found.");
       const workflow_transitions = sn_workflow.transitions;
       const user_roles = frappe.boot.user.roles;

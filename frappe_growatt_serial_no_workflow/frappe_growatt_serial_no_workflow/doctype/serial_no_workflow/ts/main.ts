@@ -16,19 +16,37 @@ const OUTPUT_INFO_MESSAGE = {
   INVALID_WORKFLOW_TRANSITION: "Transição de workflow state inválida.",
 }
 
+
 frappe.ui.form.on('Serial No Workflow', {
   refresh: async function (form) {
     form.set_df_property('next_step', 'options', []); // Limpa as opções anteriores do campo 'next_step'.
+    // Busca o workflow relacionado ao doctype 'Serial No' e que está ativo
     const sn_workflow = await frappe
       .call<{ docs: Workflow[] }>({
-        method: 'frappe.desk.form.load.getdoc', // Método padrão do Frappe para carregar um documento.
+        method: 'frappe.client.get_list',
         args: {
-          doctype: 'Workflow', // Carrega o Doctype Workflow.
-          name: 'workflow_serial_no' // Carrega o Workflow específico chamado 'workflow_serial_no'.
+          doctype: 'Workflow',
+          filters: {
+            document_type: 'Serial No',
+            is_active: 1
+          },
+          limit_page_length: 1
         }
       })
       .catch(e => console.error(e))
-      .then(r => (r && Array.isArray(r.docs) && r.docs.length > 0) ? r.docs[0] : undefined); // Extrai o primeiro documento retornado (deve ser o nosso Workflow).
+      .then(async r => {
+        if (r?.docs && Array.isArray(r.docs) && r.docs.length && r.docs[0]?.name) {
+          // Carrega o documento completo do workflow encontrado
+          return await frappe.call<{ docs: Workflow[] }>({
+            method: 'frappe.desk.form.load.getdoc',
+            args: {
+              doctype: 'Workflow',
+              name: r.docs[0].name
+            }
+          }).then(res => res?.docs[0]);
+        }
+        return null;
+      });
 
     if (!sn_workflow) return frappe.throw('Workflow not found.'); // Se o Workflow não for encontrado, lança um erro.
     const workflow_transitions = sn_workflow.transitions // Obtém as transições definidas no Workflow.
