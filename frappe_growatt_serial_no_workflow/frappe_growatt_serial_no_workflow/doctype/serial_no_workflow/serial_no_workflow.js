@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 "use strict";
 (() => {
-  // frappe_growatt_serial_no_workflow/doctype/serial_no_workflow/ts/main.ts
+  // doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = ["Information Technology User", "Administrator", "System Manager"];
   var OUTPUT_INFO_MESSAGE = {
@@ -21,10 +21,10 @@
         method: "frappe.client.get_list",
         args: {
           doctype: "Workflow",
-          filters: {
-            document_type: "Serial No",
-            is_active: 1
-          },
+          filters: [
+            ["Workflow", "document_type", "=", "Serial No"],
+            ["Workflow", "is_active", "=", 1]
+          ],
           limit_page_length: 1
         }
       }).catch((e) => console.error(e)).then(async (r) => {
@@ -383,5 +383,8 @@
       }
     }
     form.refresh_field("serial_no_table");
+  }
+})();
+eld("serial_no_table");
   }
 })();

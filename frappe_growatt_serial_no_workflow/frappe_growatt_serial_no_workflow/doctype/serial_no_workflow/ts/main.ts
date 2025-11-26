@@ -26,10 +26,10 @@ frappe.ui.form.on('Serial No Workflow', {
         method: 'frappe.client.get_list',
         args: {
           doctype: 'Workflow',
-          filters: {
-            document_type: 'Serial No',
-            is_active: 1
-          },
+          filters: [
+            ["Workflow", "document_type", "=", "Serial No"],
+            ["Workflow", "is_active", "=", 1]
+          ],
           limit_page_length: 1
         }
       })
