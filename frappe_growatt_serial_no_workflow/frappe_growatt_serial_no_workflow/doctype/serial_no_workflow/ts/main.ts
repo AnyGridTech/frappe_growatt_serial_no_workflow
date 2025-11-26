@@ -349,7 +349,7 @@ frappe.ui.form.on('Serial No Workflow', {
 async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
   // Carrega o documento do Workflow e obtém o estado inicial.
   const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', 'workflow_serial_no');
-  const initialState = workflowDoc.states?.[0]?.state;
+  const initialState = (workflowDoc.states && workflowDoc.states[0]) ? workflowDoc.states[0].state : undefined;
   if (!initialState) {
     frappe.throw('Estado inicial do Workflow não encontrado.');
   }

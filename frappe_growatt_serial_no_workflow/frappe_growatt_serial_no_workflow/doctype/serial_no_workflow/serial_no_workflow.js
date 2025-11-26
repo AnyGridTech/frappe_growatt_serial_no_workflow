@@ -273,7 +273,7 @@
   });
   async function processSerialNumbers(form) {
     const workflowDoc = await frappe.db.get_doc("Workflow", "workflow_serial_no");
-    const initialState = workflowDoc.states?.[0]?.state;
+    const initialState = workflowDoc.states && workflowDoc.states[0] ? workflowDoc.states[0].state : void 0;
     if (!initialState) {
       frappe.throw("Estado inicial do Workflow n\xE3o encontrado.");
     }
