@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 "use strict";
 (() => {
-  // frappe_growatt_serial_no_workflow/doctype/serial_no_workflow/ts/main.ts
+  // doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = ["Information Technology User", "Administrator", "System Manager"];
   var OUTPUT_INFO_MESSAGE = {
@@ -56,13 +56,11 @@
         const modal = new agt.ui.UltraDialog({
           title: "Validando SN...",
           message: "",
-          visible: false
+          visible: true
         });
         modal.set_state("waiting");
         dialog.get_field("serialno_validate")["df"].disabled = 1;
         form.refresh();
-        dialog.hide();
-        dialog.clear();
         async function validateAndDisplayMessage(serialNumber) {
           const existingSn = form.doc.serial_no_table.some((child) => child.serial_no === serialNumber);
           if (existingSn) {
@@ -157,14 +155,15 @@
           return message;
         }
         try {
+          let allMessages = [];
           for (const serialNumber of serialNumbers) {
             const msg = await validateAndDisplayMessage(serialNumber);
-            modal.set_message(`${msg}`);
-            modal.visible(true);
-            modal.set_state("waiting");
+            if (typeof msg === "string" && msg.length > 0) {
+              allMessages.push(msg);
+            }
           }
           modal.set_title("An\xE1lise Finalizada");
-          modal.set_message("<div style='color:green;'>\u2714\uFE0F Processo finalizado!</div>");
+          modal.set_message(allMessages.join("<br>"));
           modal.set_state("default");
         } catch (error) {
           modal.set_title("An\xE1lise Finalizada");

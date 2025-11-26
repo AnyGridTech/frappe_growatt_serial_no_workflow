@@ -53,7 +53,7 @@ frappe.ui.form.on('Serial No Workflow', {
     form.set_df_property('next_step', 'options', next_step_options); // Define as opções do campo 'next_step' no formulário.
 
     async function OnClickValidate(dialog: DialogInstance) {
-      const serialNumberField = dialog.get_field('serialno_text-field'); // Obtém o campo de texto com os números de série.
+      const serialNumberField = dialog.get_field('serialno_text-field');
       const serialNumbers = (serialNumberField && typeof serialNumberField['get_value'] === 'function')
         ? String(serialNumberField['get_value']() || '')
             .split('\n')
@@ -62,27 +62,27 @@ frappe.ui.form.on('Serial No Workflow', {
         : [];
 
       if (!serialNumbers || serialNumbers.length === 0) {
-        frappe.msgprint('⚠️ Por favor, insira um número de série.'); // Exibe mensagem se nenhum número de série for inserido.
+        frappe.msgprint('⚠️ Por favor, insira um número de série.');
         return;
       }
 
-      const selectedState = form.doc.next_step; // Obtém a ação selecionada pelo usuário no campo 'next_step' do formulário.
+      const selectedState = form.doc.next_step;
       if (!selectedState) {
-        frappe.msgprint('⚠️ Por favor, selecione o próximo passo do workflow.'); // Exibe mensagem se nenhuma ação for selecionada.
+        frappe.msgprint('⚠️ Por favor, selecione o próximo passo do workflow.');
         return;
       }
 
+      // Exibe o modal ANTES de iniciar a validação
       const modal = new agt.ui.UltraDialog({
         title: "Validando SN...",
         message: "",
-        visible: false
-      })
+        visible: true
+      });
       modal.set_state('waiting');
 
-      dialog.get_field('serialno_validate')['df'].disabled = 1; // Desabilita o botão "Validar" para evitar cliques múltiplos.
-      form.refresh(); // Atualiza a interface do diálogo.
-      dialog.hide(); // close the previous dialogue
-      dialog.clear(); // clear the previous dialogue 
+      // Desabilita o botão Validar
+      dialog.get_field('serialno_validate')['df'].disabled = 1;
+      form.refresh();
 
       async function validateAndDisplayMessage(serialNumber: string) {
         const existingSn = form.doc.serial_no_table
@@ -206,25 +206,28 @@ frappe.ui.form.on('Serial No Workflow', {
       }
 
       try {
+        let allMessages: string[] = [];
         for (const serialNumber of serialNumbers) {
-          // Iterate each SN
           const msg = await validateAndDisplayMessage(serialNumber);
-          modal.set_message(`${msg}`);
-          modal.visible(true);
-          modal.set_state('waiting');
+          if (typeof msg === 'string' && msg.length > 0) {
+            allMessages.push(msg);
+          }
         }
         modal.set_title("Análise Finalizada");
-        modal.set_message("<div style='color:green;'>✔️ Processo finalizado!</div>");
+        modal.set_message(allMessages.join('<br>'));
         modal.set_state('default');
       } catch (error) {
-        // Catching general errors
         modal.set_title("Análise Finalizada");
         modal.set_message(`<div style='color:red;'>❌ Erro geral: ${error}</div>`);
         modal.set_state('default');
       } finally {
-        dialog.get_field('serialno_validate')['df'].disabled = 0; // Allow "Validate" button again.
-        form.refresh(); // Update dialogue's interface.
+        // Reabilita o botão Validar
+        dialog.get_field('serialno_validate')['df'].disabled = 0;
+        form.refresh();
       }
+      // Só fecha/limpa o diálogo principal após a validação
+      // dialog.hide();
+      // dialog.clear();
     }
 
     form.fields_dict['add_sn']?.$wrapper?.off('click').on('click', () => {
@@ -244,7 +247,6 @@ frappe.ui.form.on('Serial No Workflow', {
                     dialog: true,
                     multiple: false,
                     on_scan(data) {
-                      // agt.utils.refresh_dialog_stacking();
                       if (data && data.result && data.result.text) {
                         const snField = dialog?.get_field('serialno_text-field');
                         const currentValue = String(snField?.['get_value']() ?? '');
