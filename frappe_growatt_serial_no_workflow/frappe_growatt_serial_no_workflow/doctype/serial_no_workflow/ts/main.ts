@@ -28,15 +28,15 @@ frappe.ui.form.on('Serial No Workflow', {
       },
       limit: 1
     })
-    .then(async (workflows) => {
-      if (!workflows || workflows.length === 0) return null;
-      // Carrega o documento completo do workflow encontrado
-      return await frappe.db.get_doc('Workflow', workflows[0].name);
-    })
-    .catch(e => {
-      console.error(e);
-      return null;
-    });
+      .then(async (workflows) => {
+        if (!workflows || workflows.length === 0) return null;
+        // Carrega o documento completo do workflow encontrado
+        return await frappe.db.get_doc('Workflow', workflows[0].name);
+      })
+      .catch(e => {
+        console.error(e);
+        return null;
+      });
 
     if (!sn_workflow) return frappe.throw('Workflow not found.'); // Se o Workflow não for encontrado, lança um erro.
     const workflow_transitions = sn_workflow['transitions']; // Obtém as transições definidas no Workflow.
@@ -56,9 +56,9 @@ frappe.ui.form.on('Serial No Workflow', {
       const serialNumberField = dialog.get_field('serialno_text-field');
       const serialNumbers = (serialNumberField && typeof serialNumberField['get_value'] === 'function')
         ? String(serialNumberField['get_value']() || '')
-            .split('\n')
-            .map((sn: string) => sn.trim())
-            .filter((sn: string) => sn !== '')
+          .split('\n')
+          .map((sn: string) => sn.trim())
+          .filter((sn: string) => sn !== '')
         : [];
 
       if (!serialNumbers || serialNumbers.length === 0) {
@@ -79,10 +79,10 @@ frappe.ui.form.on('Serial No Workflow', {
         visible: true
       });
       modal.set_state('waiting');
-
-      // Desabilita o botão Validar
-      dialog.get_field('serialno_validate')['df'].disabled = 1;
-      form.refresh();
+      dialog.get_field('serialno_validate')['df'].disabled = 1; // Desabilita o botão "Validar" para evitar cliques múltiplos.
+      form.refresh(); // Atualiza a interface do diálogo.
+      dialog.hide(); // close the previous dialogue
+      dialog.clear(); // clear the previous dialogue 
 
       async function validateAndDisplayMessage(serialNumber: string) {
         const existingSn = form.doc.serial_no_table

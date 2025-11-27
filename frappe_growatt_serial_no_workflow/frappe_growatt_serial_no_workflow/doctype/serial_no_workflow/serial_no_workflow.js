@@ -61,6 +61,8 @@
         modal.set_state("waiting");
         dialog.get_field("serialno_validate")["df"].disabled = 1;
         form.refresh();
+        dialog.hide();
+        dialog.clear();
         async function validateAndDisplayMessage(serialNumber) {
           const existingSn = form.doc.serial_no_table.some((child) => child.serial_no === serialNumber);
           if (existingSn) {
