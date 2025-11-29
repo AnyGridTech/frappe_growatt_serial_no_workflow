@@ -235,12 +235,12 @@ async function validateAndAddToForm(
             } else if (!snInfo && !item) {
                 message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
                 outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
-                // Always add a row for not found SNs
+                // Sempre adiciona uma linha para SN_NOT_FOUND, preenchendo campos como string vazia
                 const child: any = getOrCreateChildRow(form);
                 child.serial_no = serialNumber;
-                child.item_code = modelInfo;
-                child.item_name = modelName;
-                child.company = companyName;
+                child.item_code = '';
+                child.item_name = '';
+                child.company = '';
                 child.next_step = selectedState;
                 child.current_workflow_state = '';
                 child.output_info = outputInfo;
