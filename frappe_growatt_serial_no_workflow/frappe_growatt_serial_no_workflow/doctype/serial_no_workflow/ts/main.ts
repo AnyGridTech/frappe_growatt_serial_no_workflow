@@ -219,6 +219,7 @@ async function validateAndAddToForm(
     let companyName = '';
     let isValid = false;
     let outputInfo = '';
+    let snInfo: any = undefined; // Garante que snInfo sempre exista
     // Adds support for multiple models/MPPTs.
     let mpptDialogPromise: Promise<any> | null = null;
 
@@ -260,12 +261,12 @@ async function validateAndAddToForm(
                 form.refresh_field('serial_no_table');
                 return message;
             } else if (item && snInfo) {
-                message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP}`;
-                outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
                 modelInfo = snInfo.item_code || '';
                 modelName = snInfo.item_name || '';
                 companyName = snInfo.company || '';
                 isValid = true;
+                message = `<b>${serialNumber}:</b>✔️ ${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP} (Eq: ${modelName}, Code: ${modelInfo})`;
+                outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
             } else if (item && !snInfo) {
                 // Always treat item as an array
                 const itemList = Array.isArray(item) ? item : [item];
@@ -386,7 +387,19 @@ async function validateAndAddToForm(
         }
     }
 
-    // Do not add again, as it is already included above
+    // Garante que todo SN validado entre na tabela, inclusive not found (item = [])
+    if (!form.doc.serial_no_table.some((c: any) => c.serial_no === serialNumber)) {
+        const child: any = getOrCreateChildRow(form);
+        child.serial_no = serialNumber;
+        child.item_code = modelInfo || '';
+        child.item_name = modelName || '';
+        child.company = companyName || '';
+        child.next_step = selectedState;
+        child.current_workflow_state = snInfo?.workflow_state || '';
+        child.output_info = outputInfo;
+        child.is_valid = isValid ? 1 : 0;
+        form.refresh_field('serial_no_table');
+    }
     return message;
 }
 

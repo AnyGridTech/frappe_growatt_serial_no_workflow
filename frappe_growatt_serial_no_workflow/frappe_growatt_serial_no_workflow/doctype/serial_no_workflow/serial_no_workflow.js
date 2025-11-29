@@ -184,13 +184,14 @@
     let companyName = "";
     let isValid = false;
     let outputInfo = "";
+    let snInfo = void 0;
     let mpptDialogPromise = null;
     if (!agt?.utils?.validate_serial_number?.(serialNumber)) {
       message = `<b>${serialNumber}:</b>\u26A0\uFE0F ${OUTPUT_INFO_MESSAGE.SN_INVALID}`;
       outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID;
     } else {
       try {
-        const { item, snInfo, printError } = await CheckSerialNumber(serialNumber);
+        const { item, snInfo: snInfo2, printError } = await CheckSerialNumber(serialNumber);
         if (printError) {
           message = `<b>${serialNumber}: </b>\u274C ${printError}`;
           outputInfo = printError;
@@ -205,7 +206,7 @@
           child.is_valid = 0;
           form.refresh_field("serial_no_table");
           return message;
-        } else if (!snInfo && !item) {
+        } else if (!snInfo2 && !item) {
           message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
           outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
           const child = getOrCreateChildRow(form);
@@ -219,14 +220,14 @@
           child.is_valid = 0;
           form.refresh_field("serial_no_table");
           return message;
-        } else if (item && snInfo) {
-          message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP}`;
-          outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
-          modelInfo = snInfo.item_code || "";
-          modelName = snInfo.item_name || "";
-          companyName = snInfo.company || "";
+        } else if (item && snInfo2) {
+          modelInfo = snInfo2.item_code || "";
+          modelName = snInfo2.item_name || "";
+          companyName = snInfo2.company || "";
           isValid = true;
-        } else if (item && !snInfo) {
+          message = `<b>${serialNumber}:</b>\u2714\uFE0F ${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP} (Eq: ${modelName}, Code: ${modelInfo})`;
+          outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
+        } else if (item && !snInfo2) {
           const itemList = Array.isArray(item) ? item : [item];
           if (itemList.length > 1 && itemList[0].mppt) {
             const mpptOptions = itemList.filter((i) => i.mppt != null).map((i) => i.mppt);
@@ -298,13 +299,13 @@
             outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
           }
         }
-        if (snInfo && sn_workflow && Array.isArray(sn_workflow.transitions)) {
+        if (snInfo2 && sn_workflow && Array.isArray(sn_workflow.transitions)) {
           const available_transitions = sn_workflow.transitions.filter(
-            (t) => t.state === snInfo.workflow_state && t.next_state === selectedState
+            (t) => t.state === snInfo2.workflow_state && t.next_state === selectedState
           );
           if (!available_transitions.length && !is_force_state_allowed) {
-            const allowedStates = sn_workflow.transitions.filter((t) => t.state === snInfo.workflow_state).map((t) => t.next_state).filter((v, i, self) => self.indexOf(v) === i);
-            message = `<b>${serialNumber}:</b>\u274C ${OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION} <b>${__("Current state:")}</b> ${snInfo.workflow_state}, <b>${__("Selected next:")}</b> ${selectedState}. <b>${__("Allowed state(s):")}</b> ${allowedStates.join(", ")}.`;
+            const allowedStates = sn_workflow.transitions.filter((t) => t.state === snInfo2.workflow_state).map((t) => t.next_state).filter((v, i, self) => self.indexOf(v) === i);
+            message = `<b>${serialNumber}:</b>\u274C ${OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION} <b>${__("Current state:")}</b> ${snInfo2.workflow_state}, <b>${__("Selected next:")}</b> ${selectedState}. <b>${__("Allowed state(s):")}</b> ${allowedStates.join(", ")}.`;
             outputInfo = OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION;
             isValid = false;
           }
@@ -316,7 +317,7 @@
           child.item_name = modelName;
           child.company = companyName;
           child.next_step = selectedState;
-          child.current_workflow_state = snInfo?.workflow_state || "";
+          child.current_workflow_state = snInfo2?.workflow_state || "";
           child.output_info = outputInfo;
           child.is_valid = isValid ? 1 : 0;
           form.refresh_field("serial_no_table");
@@ -331,6 +332,18 @@
         child.is_valid = 0;
         form.refresh_field("serial_no_table");
       }
+    }
+    if (!form.doc.serial_no_table.some((c) => c.serial_no === serialNumber)) {
+      const child = getOrCreateChildRow(form);
+      child.serial_no = serialNumber;
+      child.item_code = modelInfo || "";
+      child.item_name = modelName || "";
+      child.company = companyName || "";
+      child.next_step = selectedState;
+      child.current_workflow_state = snInfo?.workflow_state || "";
+      child.output_info = outputInfo;
+      child.is_valid = isValid ? 1 : 0;
+      form.refresh_field("serial_no_table");
     }
     return message;
   }
