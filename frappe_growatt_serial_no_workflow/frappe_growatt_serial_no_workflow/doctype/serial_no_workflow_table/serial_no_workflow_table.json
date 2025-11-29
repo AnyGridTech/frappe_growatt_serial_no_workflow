@@ -13,8 +13,8 @@
   "current_workflow_state",
   "next_step",
   "output_info",
-  "is_success",
-  "is_valid"
+  "is_valid",
+  "is_success"
  ],
  "fields": [
   {
@@ -118,7 +118,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-11-17 13:30:40.485200",
+ "modified": "2025-11-29 17:21:58.764044",
  "modified_by": "Administrator",
  "module": "Frappe Growatt Serial No Workflow",
  "name": "Serial No Workflow Table",

@@ -197,6 +197,17 @@
         } else if (!snInfo && !item) {
           message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
           outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
+          const child = getOrCreateChildRow(form);
+          child.serial_no = serialNumber;
+          child.item_code = modelInfo;
+          child.item_name = modelName;
+          child.company = companyName;
+          child.next_step = selectedState;
+          child.current_workflow_state = "";
+          child.output_info = outputInfo;
+          child.is_valid = 0;
+          form.refresh_field("serial_no_table");
+          return message;
         } else if (item && snInfo) {
           message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP}`;
           outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
@@ -375,7 +386,8 @@
     const outputsMap = {
       [OUTPUT_INFO_MESSAGE.SN_FOUND_ERP]: true,
       [OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT]: true,
-      [OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION]: !!form.doc.checkbox_force_state
+      [OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION]: !!form.doc.checkbox_force_state,
+      [OUTPUT_INFO_MESSAGE.SN_NOT_FOUND]: true
     };
     const successfulSerialNumbers = form.doc.serial_no_table.filter((row) => outputsMap[row.output_info]);
     const allSerials = successfulSerialNumbers.map((r) => r.serial_no);
