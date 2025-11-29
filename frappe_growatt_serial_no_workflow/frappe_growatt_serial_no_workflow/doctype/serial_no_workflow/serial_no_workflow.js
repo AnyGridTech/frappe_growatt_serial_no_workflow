@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 "use strict";
 (() => {
-  // doctype/serial_no_workflow/ts/main_x.ts
+  // doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = [
     "IT",

@@ -29,7 +29,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force"
   },
-  "include": ["ts/**/*.ts", "**/ts/**/*.ts"],
+  "include": ["ts/**/*.ts", "**/ts/**/*.ts", "../../../../main copy.ts", "../../../../main.ts"],
   "exclude": ["node_modules", "**/__bundle_entry__.ts"],
   "watchOptions": {
     "watchFile": "fixedPollingInterval",
