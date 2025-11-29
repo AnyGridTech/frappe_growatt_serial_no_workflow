@@ -1,3 +1,40 @@
+# SN not found.,SN não encontrado.
+# SN found in ERPNext database.,SN encontrado na base do ERPNext.
+# SN found in Growatt database.,SN encontrado na base da Growatt.
+# Invalid serial number.,Número de série inválido.
+# Duplicated serial number.,Número de série duplicado.
+# Input validation error.,Erro ao validar entrada.
+# Invalid workflow state transition.,Transição de workflow state inválida.
+# This serial number has already been entered.,Este número de série já foi inserido.
+# SN found in ERP, but the status transition is invalid. <b>Current state: </b> {0}, <b>Selected next: </b> {1}. <b>Allowed state(s): </b> {2}.,SN encontrado no ERP, mas a transição de status é inválida. <b>Estado atual: </b> {0}, <b>Próximo selecionado: </b> {1}. <b>Estado(s) permitido(s): </b> {2}.
+# Error validating.,Erro ao validar.
+# Please enter a serial number.,Por favor, insira um número de série.
+# Please select the next workflow step.,Por favor, selecione o próximo passo do workflow.
+# Validating SN...,Validando SN...
+# Analysis Finished,Análise Finalizada
+# Process finished!,Processo finalizado!
+# General error:,Erro geral:
+# Incomplete data for SN,Dados incompletos para o SN
+# Process aborted due to incomplete data.,Processo abortado devido a dados incompletos.
+# Invalid state transition for SN,Transição de estado inválida para SN
+# Current state,Estado atual
+# Selected next,Próximo selecionado
+# Allowed,Permitidos
+# Process aborted due to invalid transition for existing SN.,Processo abortado devido a transição inválida para SN existente.
+# Serial Number,Número de Série
+# was successfully added to the database.,foi adicionado com sucesso ao banco de dados.
+# Error adding serial number,Erro ao adicionar o número de série
+# Failed to update workflow_state to,Falha ao atualizar workflow_state para
+# for SN,no SN
+# Scan barcode,Escanear código de barras
+# Click to activate the barcode scanner.,Clique para ativar o scanner de código de barras.
+# Enter the serial number manually or scan the barcode.,Insira o número de série manualmente ou escaneie o código de barras.
+# Validate,Validar
+# Error opening the SN addition window. Check the console for details.,Erro ao abrir a janela de adição de SN. Verifique o console para detalhes.
+# Could not start the scanner. Check camera permissions or if a camera is available.,Não foi possível iniciar o scanner. Verifique as permissões da câmera ou se há uma câmera disponível.
+# Force Workflow state <b>ENABLED</b>.,Forçar estado do Workflow <b>HABILITADO</b>.
+# Force Workflow state <b>DISABLED</b>.,Forçar estado do Workflow <b>DESABILITADO</b>.
+# You do not have permission to force the Workflow state.,Você não tem permissão para forçar o estado do Workflow.
 Serial No Workflow,Fluxo de Trabalho de Número de Série
 Frappe Growatt Serial No Workflow,Fluxo de Trabalho de Número de Série
 Amended From,Emendado De

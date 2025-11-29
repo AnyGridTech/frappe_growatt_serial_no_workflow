@@ -4,7 +4,7 @@
 // import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";
 
 // let is_force_state_allowed: boolean = false;
-// let allowedRoles = ['Information Technology User', 'Administrator', 'System Manager'];
+// let allowedRoles = ['IT', 'Administrator', 'System Manager'];
 
 // const OUTPUT_INFO_MESSAGE = {
 //   SN_NOT_FOUND: "SN não encontrado.",
@@ -20,67 +20,71 @@
 //   refresh: async function (form) {
 //     form.set_df_property('next_step', 'options', []); // Limpa as opções anteriores do campo 'next_step'.
 
-//     // Busca o workflow ativo relacionado ao doctype 'Serial No'
-//     const sn_workflow = await frappe.db.get_list('Workflow', {
+//     // Busca o workflow ATIVO do doctype 'Serial No' dinamicamente
+//     const activeWorkflow = await frappe.db.get_list('Workflow', {
 //       filters: {
 //         document_type: 'Serial No',
 //         is_active: 1
 //       },
+//       fields: ['name'],
 //       limit: 1
-//     })
-//       .then(async (workflows) => {
-//         if (!workflows || workflows.length === 0) return null;
-//         // Carrega o documento completo do workflow encontrado
-//         return await frappe.db.get_doc('Workflow', workflows[0].name);
+//     }).then(r => r && r.length ? r[0].name : null);
+
+//     if (!activeWorkflow) return frappe.throw('Workflow ativo para Serial No não encontrado.');
+
+//     const sn_workflow = await frappe
+//       .call<{ docs: Workflow[] }>({
+//         method: 'frappe.desk.form.load.getdoc',
+//         args: {
+//           doctype: 'Workflow',
+//           name: activeWorkflow
+//         }
 //       })
-//       .catch(e => {
-//         console.error(e);
-//         return null;
-//       });
+//       .catch(e => console.error(e))
+//       .then(r => r?.docs[0]);
 
 //     if (!sn_workflow) return frappe.throw('Workflow not found.'); // Se o Workflow não for encontrado, lança um erro.
-//     const workflow_transitions = sn_workflow['transitions']; // Obtém as transições definidas no Workflow.
+//     const workflow_transitions = sn_workflow.transitions // Obtém as transições definidas no Workflow.
 //     const user_roles = frappe.boot.user.roles; // Obtém as roles (funções) do usuário atual.
 //     const next_step_options = [] as string[]; // Cria um array para armazenar as opções do campo 'next_step'.
 
-//     const allowed_workflow_transitions = workflow_transitions.filter((t: any) => user_roles.includes(t.allowed));
+//     const allowed_workflow_transitions = workflow_transitions.filter((t) => user_roles.includes(t.allowed))
 //     outterLoop:
 //     for (let allowed_transition of allowed_workflow_transitions) {
 //       if (next_step_options.includes(allowed_transition.next_state)) continue outterLoop;
-//       next_step_options.push(allowed_transition.next_state);
+//       next_step_options.push(allowed_transition.next_state)
 //     }
 
 //     form.set_df_property('next_step', 'options', next_step_options); // Define as opções do campo 'next_step' no formulário.
 
 //     async function OnClickValidate(dialog: DialogInstance) {
-//       const serialNumberField = dialog.get_field('serialno_text-field');
-//       const serialNumbers = (serialNumberField && typeof serialNumberField['get_value'] === 'function')
-//         ? String(serialNumberField['get_value']() || '')
-//           .split('\n')
-//           .map((sn: string) => sn.trim())
-//           .filter((sn: string) => sn !== '')
-//         : [];
+//       const serialNumberField = dialog.get_field('serialno_text-field'); // Obtém o campo de texto com os números de série.
+//       const serialNumbers = serialNumberField
+//         ?.['get_value']() /// temp
+//         ?.split('\n') // Divide o texto em um array de números de série, separados por quebra de linha.
+//         .map((sn: string) => sn.trim()) // Remove espaços em branco do início e fim de cada número de série.
+//         .filter((sn: string) => sn !== ''); // Remove linhas vazias.
 
 //       if (!serialNumbers || serialNumbers.length === 0) {
-//         frappe.msgprint('⚠️ Por favor, insira um número de série.');
+//         frappe.msgprint('⚠️ Por favor, insira um número de série.'); // Exibe mensagem se nenhum número de série for inserido.
 //         return;
 //       }
 
-//       const selectedState = form.doc.next_step;
+//       const selectedState = form.doc.next_step; // Obtém a ação selecionada pelo usuário no campo 'next_step' do formulário.
 //       if (!selectedState) {
-//         frappe.msgprint('⚠️ Por favor, selecione o próximo passo do workflow.');
+//         frappe.msgprint('⚠️ Por favor, selecione o próximo passo do workflow.'); // Exibe mensagem se nenhuma ação for selecionada.
 //         return;
 //       }
 
-//       // Exibe o modal ANTES de iniciar a validação
 //       const modal = new agt.ui.UltraDialog({
 //         title: "Validando SN...",
 //         message: "",
-//         visible: true
-//       });
+//         visible: false
+//       })
 //       modal.set_state('waiting');
-//       dialog.get_field('serialno_validate')['df'].disabled = 1; // Desabilita o botão "Validar" para evitar cliques múltiplos.
-//       form.refresh(); // Atualiza a interface do diálogo.
+
+//       dialog.get_field('serialno_validate')['df'].disabled = 1; // Desabilita o botão "Validar" para evitar cliques múltiplos. /// temp
+//       dialog.refresh(); // Atualiza a interface do diálogo.
 //       dialog.hide(); // close the previous dialogue
 //       dialog.clear(); // clear the previous dialogue 
 
@@ -98,12 +102,10 @@
 //         let isValid = false;
 //         let outputInfo = ''; // Variável para armazenar a mensagem de output_info
 
-//         if (typeof agt.utils.validate_serial_number !== 'function') {
-//           message = `<b>${serialNumber}:</b>❌ Erro interno: Função de validação de SN não está disponível.`;
-//           outputInfo = "Erro interno: validate_serial_number não disponível.";
-//         } else if (!agt.utils.validate_serial_number(serialNumber)) {
+//         if (!agt.utils.validate_serial_number(serialNumber)) {
+//           // Verifica se o número de série é válido usando uma expressão regular.
 //           message = `<b>${serialNumber}:</b>⚠️ Número de série inválido.`;
-//           outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID;
+//           outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID; // Define output_info para erro de regex
 //         } else {
 //           try {
 //             const { item, snInfo, printError } = await CheckSerialNumber(serialNumber); // Chama a função para verificar o número de série no banco de dados ou na API da Growatt.
@@ -141,8 +143,8 @@
 //               // Se o SN foi encontrado no banco de dados ERPNext.
 //               if (!sn_workflow) return frappe.throw('Workflow not found.');
 //               // Verifica se há transição válida do estado atual para o estado selecionado
-//               const available_transitions = sn_workflow['transitions'].filter(
-//                 (transition: any) =>
+//               const available_transitions = sn_workflow.transitions.filter(
+//                 transition =>
 //                   transition.state === snInfo.workflow_state &&
 //                   transition.next_state === selectedState
 //               );
@@ -150,9 +152,9 @@
 //               // Se NÃO houver transições válidas E NÃO for forçado, então bloqueia
 //               if (!available_transitions.length && !is_force_state_allowed) {
 //                 const allowedStates = workflow_transitions
-//                   .filter((t: any) => t.state === snInfo.workflow_state)
-//                   .map((t: any) => t.next_state)
-//                   .filter((value: any, index: number, self: any[]) => self.indexOf(value) === index);
+//                   .filter(t => t.state === snInfo.workflow_state)
+//                   .map(t => t.next_state)
+//                   .filter((value, index, self) => self.indexOf(value) === index);
 
 //                 message = `<b>${serialNumber}:</b>❌ SN encontrado no ERP, mas a transição de status é inválida. <b>Estado atual: </b> ${snInfo.workflow_state}, <b>Próximo selecionado: </b> ${selectedState}. <b>Estado(s) permitido(s): </b> ${allowedStates.join(', ')}.`;
 //                 outputInfo = OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION;
@@ -208,30 +210,25 @@
 //       }
 
 //       try {
-//         let allMessages: string[] = [];
 //         for (const serialNumber of serialNumbers) {
+//           // Iterate each SN
 //           const msg = await validateAndDisplayMessage(serialNumber);
-//           if (typeof msg === 'string' && msg.length > 0) {
-//             allMessages.push(msg);
-//             // // Atualiza o UltraDialog a cada SN processado
-//             // modal.set_message(allMessages.join('<br>'));
-//           }
+//           modal.set_message(`${msg}`);
+//           modal.visible(true);
+//           modal.set_state('waiting');
 //         }
 //         modal.set_title("Análise Finalizada");
-//         modal.set_message(allMessages.join('<br>'));
+//         modal.set_message("<div style='color:green;'>✔️ Processo finalizado!</div>");
 //         modal.set_state('default');
 //       } catch (error) {
+//         // Catching general errors
 //         modal.set_title("Análise Finalizada");
 //         modal.set_message(`<div style='color:red;'>❌ Erro geral: ${error}</div>`);
 //         modal.set_state('default');
 //       } finally {
-//         // Reabilita o botão Validar
-//         dialog.get_field('serialno_validate')['df'].disabled = 0;
-//         form.refresh();
+//         dialog.get_field('serialno_validate')['df.disabled'] = 0; // Allow "Validate" button again. /// temp
+//         dialog.refresh(); // Update dialogue's interface.
 //       }
-//       //Só fecha/limpa o diálogo principal após a validação
-//       dialog.hide();
-//       dialog.clear();
 //     }
 
 //     form.fields_dict['add_sn']?.$wrapper?.off('click').on('click', () => {
@@ -251,11 +248,12 @@
 //                     dialog: true,
 //                     multiple: false,
 //                     on_scan(data) {
+//                       // growatt.utils.refresh_dialog_stacking();
 //                       if (data && data.result && data.result.text) {
 //                         const snField = dialog?.get_field('serialno_text-field');
-//                         const currentValue = String(snField?.['get_value']() ?? '');
+//                         const currentValue = snField?.['get_value']() || ''; /// temp
 //                         const newValue = currentValue ? currentValue + '\n' + data.result.text : data.result.text;
-//                         snField?.['set_input'](newValue);
+//                         snField?.['set_input'](newValue); /// temp
 //                       }
 //                     }
 //                   });
@@ -295,13 +293,19 @@
 
 // agt.utils.dialog.close_all(); // Fecha todos os dialogos antes de chamar a função on click validate
 
+// // frappe.ui.form.on('Serial No Workflow', {
+// //   next_step: async function (form) {
+// //     // O evento next_step não precisa realizar ações agora. A ação selecionada é usada diretamente em outras funções.
+// //   }
+// // });
+
 // frappe.ui.form.on('Serial No Workflow', {
 //   next_step: function (form: FrappeForm<SerialNoWorkflow>) {
 //     // O evento next_step não precisa realizar ações agora. A ação selecionada é usada diretamente em outras funções.
 //     // Este handler existe para garantir que o evento seja registrado corretamente.
 //     // Se necessário, adicione lógica aqui futuramente.
 //     form.refresh_field('next_step'); // Garante que o parâmetro seja utilizado
-//     return;
+//     // return;
 //   }
 // });
 
@@ -320,7 +324,6 @@
 //     }
 
 //     const item = await agt.utils.get_item_info(sn2.data.model) //Obtem informações relacionadas ao item na API (função externa)
-
 //     return { item: item, snInfo: undefined, printError };
 //   }
 
@@ -335,9 +338,13 @@
 // }
 
 // frappe.ui.form.on('Serial No Workflow', {
-//   before_submit: async function (form) {
-//     // Função executada antes do formulário ser submetido.
+//   validate: async function (form: FrappeForm<SerialNoWorkflow>) {
+//     // Função executada antes de salvar ou submeter o documento.
 //     await processSerialNumbers(form);  // Adiciona os números de série que faltam ao banco de dados.
+//   },
+//   before_submit: async function (form: FrappeForm<SerialNoWorkflow>) {
+//     // Mantém para compatibilidade, mas não é mais necessário se validate já cobre o fluxo.
+//     // await processSerialNumbers(form);
 //   },
 //   checkbox_force_state: function (frm) {
 //     // Verifica se o usuário possui PELO MENOS UMA das roles permitidas usando .some()
@@ -365,8 +372,21 @@
 // });
 
 // async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
+//   // Busca o workflow ATIVO do doctype 'Serial No' dinamicamente
+//   const activeWorkflow = await frappe.db.get_list('Workflow', {
+//     filters: {
+//       document_type: 'Serial No',
+//       is_active: 1
+//     },
+//     fields: ['name'],
+//     limit: 1
+//   }).then(r => r && r.length ? r[0].name : null);
+
+//   if (!activeWorkflow) throw 'Workflow ativo para Serial No não encontrado.';
+
 //   // Carrega o documento do Workflow e obtém o estado inicial.
-//   const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', 'workflow_serial_no');
+//   const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', activeWorkflow);
+//   // const initialState = workflowDoc.states[0].state; // Estado inicial do workflow.
 //   const initialState = workflowDoc.states?.[0]?.state;
 //   if (!initialState) {
 //     frappe.throw('Estado inicial do Workflow não encontrado.');
