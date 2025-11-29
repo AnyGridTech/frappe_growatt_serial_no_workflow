@@ -194,6 +194,17 @@
         if (printError) {
           message = `<b>${serialNumber}: </b>\u274C ${printError}`;
           outputInfo = printError;
+          const child = getOrCreateChildRow(form);
+          child.serial_no = serialNumber;
+          child.item_code = "";
+          child.item_name = "";
+          child.company = "";
+          child.next_step = selectedState;
+          child.current_workflow_state = "";
+          child.output_info = outputInfo;
+          child.is_valid = 0;
+          form.refresh_field("serial_no_table");
+          return message;
         } else if (!snInfo && !item) {
           message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
           outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
