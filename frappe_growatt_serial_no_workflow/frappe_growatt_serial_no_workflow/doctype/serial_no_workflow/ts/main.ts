@@ -10,7 +10,7 @@ import { FrappeForm } from "@anygridtech/frappe-types/client/frappe/core";
 let is_force_state_allowed: boolean = false;
 
 const allowedRoles = [
-    'IT',
+    'Information Technology',
     'Administrator',
     'System Manager'
 ];

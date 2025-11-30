@@ -5,7 +5,7 @@
   // doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = [
-    "IT",
+    "Information Technology",
     "Administrator",
     "System Manager"
   ];
