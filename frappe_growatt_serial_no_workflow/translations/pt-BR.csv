@@ -38,13 +38,13 @@ Could not start the scanner. Check camera permissions or if a camera is availabl
 Force Workflow state <b>ENABLED</b>.,Forçar estado do Workflow <b>HABILITADO</b>.
 Force Workflow state <b>DISABLED</b>.,Forçar estado do Workflow <b>DESABILITADO</b>.
 # You do not have permission to force the Workflow state.,Você não tem permissão para forçar o estado do Workflow.
-Serial No Workflow,Fluxo de Trabalho de Nº de Série
-Frappe Growatt Serial No Workflow,Fluxo de Trabalho de Nº de Série
+Serial No Workflow,Fluxo de Nº de Série
+Frappe Growatt Serial No Workflow,Fluxo de Nº de Série
 Amended From,Emendado De
 Chosen Next Step,Próxima Etapa Escolhida
 Add Equipment,Adicionar Equipamento
 Force Step Override?,Forçar Substituição de Etapa?
-Serial No Workflow Table,Tabela de Fluxo de Trabalho de Nº de Série
+Serial No Workflow Table,Tabela de Fluxo de Nº de Série
 Serial No.,Número de Série
 Item Name,Nome do Item
 Item Code,Código do Item
