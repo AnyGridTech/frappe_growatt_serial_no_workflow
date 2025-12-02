@@ -35,13 +35,13 @@
 # Force Workflow state <b>ENABLED</b>.,Forçar estado do Workflow <b>HABILITADO</b>.
 # Force Workflow state <b>DISABLED</b>.,Forçar estado do Workflow <b>DESABILITADO</b>.
 # You do not have permission to force the Workflow state.,Você não tem permissão para forçar o estado do Workflow.
-Serial No Workflow,Fluxo de Trabalho de Número de Série
-Frappe Growatt Serial No Workflow,Fluxo de Trabalho de Número de Série
+Serial No Workflow,Fluxo de Trabalho de Nº de Série
+Frappe Growatt Serial No Workflow,Fluxo de Trabalho de Nº de Série
 Amended From,Emendado De
 Chosen Next Step,Próxima Etapa Escolhida
 Add Equipment,Adicionar Equipamento
 Force Step Override?,Forçar Substituição de Etapa?
-Serial No Workflow Table,Tabela de Fluxo de Trabalho de Número de Série
+Serial No Workflow Table,Tabela de Fluxo de Trabalho de Nº de Série
 Serial No.,Número de Série
 Item Name,Nome do Item
 Item Code,Código do Item
@@ -77,3 +77,213 @@ Error adding serial number.,Erro ao adicionar o número de série.
 Serial Number {0} was successfully added to the database.,Número de Série {0} foi adicionado com sucesso ao banco de dados.
 Failed to update workflow_state to {0} for SN {1}.,Falha ao atualizar workflow_state para {0} no SN {1}.
 Invalid state transition for SN: {0}. Current state: {1}, Next selected: {2}. Allowed: {3}.,Transição de estado inválida para SN: {0}. Estado atual: {1}, Próximo selecionado: {2}. Permitidos: {3}.
+Administrative Analysis,Análise Administrativa
+Advance,Avançar
+Approve,Aprovar
+Approve Advanced Exchange,Aprovar Troca Avançada
+Approve Analysis,Aprovar Análise
+Approve Correction,Aprovar Correção
+Approve Documentation,Aprovar Documentação
+Approve Warranty,Aprovar Garantia
+Approved,Aprovado
+Attend,Atender
+Cancel,Cancelar
+Cancel Checklist,Cancelar Checklist
+Cancel Collection,Cancelar Coleta
+Close Case,Encerrar Caso
+Collect Item,Coletar Item
+Collected,Coletado
+Collection Cancelled,Coleta Cancelada
+Completed,Concluído
+Conclude,Concluir
+Conclude Checklist,Concluir Checklist
+Condemn Item,Condenar Item
+Deliver Discarded Item to Recycling,Entregar Item Desc. para Reciclagem
+Deliver Item,Entregar Item
+Delivered,Entregue
+Disapprove Analysis,Reprovar Análise
+Discard Item,Descartar Item
+Dispatch Item,Despachar Item
+Distribute as Repair,Distribuir como Reparo
+Finish Correction,Finalizar Correção
+Finish Review,Finalizar Revisão
+Finish Service,Finalizar Serviço
+Forward to Support,Encaminhar ao Suporte
+Frustrated Collection,Coleta Frustrada
+Ignore Collection,Ignorar Coleta
+Ignored Collection,Coleta Ignorada
+In Service,Em Serviço
+Inform Availability,Informar Disponibilidade
+Inform Condemnation,Informar Condenação
+Inform Defect,Informar Defeito
+Inform Inspection,Informar Inspeção
+Inform Unavailability,Informar Indisponibilidade
+Inform Usage,Informar Uso
+Inspect Item,Inspecionar Item
+Issue Entry Invoice,Emitir Nota de Entrada
+Issue Exit Invoice,Emitir Nota de Saída
+Issue Invoice,Emitir Nota Fiscal
+Laboratory Analysis Completed,Análise Laboratorial Concluída
+Laboratory Analysis In Progress,Análise Laboratorial em Andamento
+Lost,Perdido
+Notify Loss,Notificar Perda
+Open,Abrir
+Open Collection Occurrence,Abrir Ocorrência de Coleta
+Open Shipping Occurrence,Abrir Ocorrência de Envio
+Pack Item,Empacotar Item
+Paralyze,Paralisar
+Pause,Pausar
+Pause Analysis,Pausar Análise
+Reactivate,Reativar
+Receive Item,Receber Item
+Reevaluate,Reavaliar
+Refuse Collection,Recusar Coleta
+Refuse Reverse Collection,Recusar Coleta Reversa
+Reject,Rejeitar
+Rejected,Rejeitado
+Repair Item,Reparar Item
+Request Analysis,Solicitar Análise
+Request Battery Checklist,Solicitar Checklist de Bateria
+Request Checklist,Solicitar Checklist
+Request Collection,Solicitar Coleta
+Request Correction,Solicitar Correção
+Request Documentation,Solicitar Documentação
+Request EV Charger Checklist,Solicitar Checklist de Carregador EV
+Request Exchange,Solicitar Troca
+Request Inverter Checklist,Solicitar Checklist de Inversor
+Request Repair,Solicitar Reparo
+Request Review,Solicitar Revisão
+Request Shipment,Solicitar Envio
+Request Shipping,Solicitar Remessa
+Request Shipping Proposal,Solicitar Proposta de Envio
+Resolve,Resolver
+Resolved,Resolvido
+Retain Item,Reter Item
+Return,Retornar
+Return Item,Devolver Item
+Return to Service,Retornar ao Serviço
+Return to Warranty,Retornar à Garantia
+Review,Revisar
+Send,Enviar
+Send Item,Enviar Item
+Send Peripheral,Enviar Periférico
+Send to Client,Enviar ao Cliente
+Separate Item,Separar Item
+Ship Item,Despachar Item
+Solve,Solucionar
+Solve Occurrence,Solucionar Ocorrência
+Start Service,Iniciar Serviço
+Stock Defective Item,Estocar Item Defeituoso
+Stock Discarded Item,Estocar Item Desc.
+Stock Item,Estocar Item
+Stock New Item,Estocar Item Novo
+Submit,Enviar
+Suspend,Suspender
+Waiting for Collaborator,Aguardando Colaborador
+Waiting for Collection,Aguardando Coleta
+Waiting for Payment,Aguardando Pagamento
+Activated,Ativado
+Active,Ativo
+Administrative Analysis,Análise Administrativa
+all,todos
+Approved,Aprovado
+Available Laptop,Laptop Disponível
+Awaiting Action,Aguardando Ação
+Awaiting Administrative Correction,Aguardando Correção Administrativa
+Awaiting Carrier Collection,Aguardando Coleta da Transportadora
+Awaiting Collaborator,Aguardando Colaborador
+Awaiting Collection,Aguardando Coleta
+Awaiting Collection Scheduling,Aguardando Agendamento de Coleta
+Awaiting Customer,Aguardando Cliente
+Awaiting Customer Authorization,Aguardando Autorização do Cliente
+Awaiting Defective Collection,Aguardando Coleta de Defeituoso
+Awaiting Growatt,Aguardando Growatt
+Awaiting Packaging,Aguardando Embalagem
+Awaiting Payment for Reshipment,Aguardando Pagamento para Reenvio
+Awaiting Quotation Payment,Aguardando Pagamento de Cotação
+Awaiting Return,Aguardando Retorno
+Awaiting Shipment,Aguardando Envio
+Awaiting Shipment by Repair Center,Aguardando Envio pelo Centro de Reparo
+Awaiting Spare Parts,Aguardando Peças de Reposição
+Awaiting Tax Payment,Aguardando Pagamento de Impostos
+Awaiting Transport Payment,Aguardando Pagamento de Transporte
+Battery Checklist Requested,Checklist de Bateria Solicitado
+Cancelled,Cancelado
+Case Closed,Caso Encerrado
+Checklist,Checklist
+Checklist Completed,Checklist Concluído
+Checklist Requested,Checklist Solicitado
+Closed: Corrected,Fechado: Corrigido
+Closed: Correction Missing,Fechado: Correção Pendente
+Collected,Coletado
+Collection Cancelled,Coleta Cancelada
+Collection Ignored,Coleta Ignorada
+Collection In Progress,Coleta em Andamento
+Collection Occurrence,Ocorrência de Coleta
+Collection Refused,Coleta Recusada
+Completed,Concluído
+Compliance Statement,Declaração de Conformidade
+Condemned Equipment,Equipamento Condenado
+Customer Delivery Failure,Entrega ao Cliente Fracassada
+Customer Pickup Failure at Post Office,Retirada do Cliente Fracassada nos Correios
+Customer: Action Required,Cliente: Ação Necessária
+Customer: Battery Checklist Requested,Cliente: Checklist de Bateria Solicitado
+Customer: Checklist Requested,Cliente: Checklist Solicitado
+Customer: Complete Filling,Cliente: Preenchimento Completo
+Customer: Correct Documentation,Cliente: Corrigir Documentação
+Customer: Correct Information,Cliente: Corrigir Informação
+Customer: Correction Requested,Cliente: Correção Solicitada
+Customer: Documentation Requested,Cliente: Documentação Solicitada
+Customer: EV Charger Checklist Requested,Cliente: Checklist de Carregador EV Solicitado
+Customer: Fill Data,Cliente: Preencher Dados
+Customer: Inverter Checklist Requested,Cliente: Checklist de Inversor Solicitado
+Customer: Pending,Cliente: Pendente
+Deleted,Excluído
+Delivered,Entregue
+Delivered to Customer,Entregue ao Cliente
+Delivered to Repair Center,Entregue ao Centro de Reparo
+Delivery to Customer Refused,Entrega ao Cliente Recusada
+Disposal Completed,Descarte Concluído
+Disposal Delivered for Recycling,Descarte Entregue para Reciclagem
+Disposal Finalized,Descarte Finalizado
+Disposal in Laboratory,Descarte em Laboratório
+Disposal in Stock,Descarte em Estoque
+Disposal Sent for Recycling,Descarte Enviado para Reciclagem
+Documentation Approved,Documentação Aprovada
+Documentation Requested,Documentação Solicitada
+Draft,Rascunho
+Entry Invoice Issuance,Emissão de Nota de Entrada
+Equipment Inspection,Inspeção de Equipamento
+EV Charger Checklist Requested,Checklist de Carregador EV Solicitado
+Exit Invoice Issuance,Emissão de Nota de Saída
+Expedition Quality,Qualidade de Expedição
+Failed Collection,Coleta Fracassada
+Finished,Finalizado
+Held at Tax Post,Retido no Posto Fiscal
+Held for Administrative Pending,Retido por Pendência Administrativa
+Ignored Collection,Coleta Ignorada
+In Progress,Em Andamento
+In Service,Em Serviço
+In Transit for Repair,Em Trânsito para Reparo
+Incomplete Request,Solicitação Incompleta
+Inverter Checklist Requested,Checklist de Inversor Solicitado
+Inverter Inspection,Inspeção de Inversor
+Laptop Condemned,Laptop Condenado
+Laptop Defective,Laptop Defeituoso
+Laptop In Use,Laptop em Uso
+Laptop Registered,Laptop Registrado
+Laptop Under Inspection,Laptop em Inspeção
+Lost,Perdido
+Lost Collection,Coleta Perdida
+Lost in Transit for Repair,Perdido em Trânsito para Reparo
+Lost in Transport to Customer,Perdido no Transporte ao Cliente
+Lost Item,Item Perdido
+New in Stock,Novo em Estoque
+Stock Separation, Separação de Estoque
+Shipping to Customer In Progress,Envio ao Cliente em Andamento
+Receiving Quality,Qualidade do Recebimento
+Returned to Customer,Devolvido ao Cliente
+Receiving Quality,Qualidade do Recebimento
+Defective in Stock,Defeituoso em Estoque
+Repair In Progress,Reparo em Andamento
+Shipping Quality,Qualidade de Envio

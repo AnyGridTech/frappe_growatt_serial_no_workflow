@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 "use strict";
 (() => {
-  // doctype/serial_no_workflow/ts/main.ts
+  // frappe_growatt_serial_no_workflow/doctype/serial_no_workflow/ts/main.ts
   var is_force_state_allowed = false;
   var allowedRoles = [
     "Information Technology",
