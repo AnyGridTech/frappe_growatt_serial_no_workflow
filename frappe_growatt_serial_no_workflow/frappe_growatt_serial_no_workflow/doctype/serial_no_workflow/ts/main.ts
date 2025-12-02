@@ -408,23 +408,23 @@ async function validateAndAddToForm(
  */
 async function handleValidateButtonClick(form: FrappeForm<SerialNoWorkflow>, sn_workflow: Workflow, dialog: DialogInstance) {
     if (!dialog?.get_field) {
-        frappe.msgprint('❌ ' + OUTPUT_INFO_MESSAGE.INVALID_FORM);
+        frappe.msgprint('❌ ' + __(OUTPUT_INFO_MESSAGE.INVALID_FORM));
         return;
     }
     const serialNumberField = dialog.get_field('serialno_text-field');
     const raw = serialNumberField?.['get_value']?.() ?? '';
     const serialNumbers = typeof raw === 'string' ? raw.split('\n').map((s: string) => s.trim()).filter((s: string) => s !== '') : [];
     if (!serialNumbers.length) {
-        frappe.msgprint('⚠️ ' + OUTPUT_INFO_MESSAGE.PLEASE_ENTER_SN);
+        frappe.msgprint('⚠️ ' + __(OUTPUT_INFO_MESSAGE.PLEASE_ENTER_SN));
         return;
     }
     if (!form?.doc) {
-        frappe.msgprint('❌ ' + OUTPUT_INFO_MESSAGE.INVALID_FORM);
+        frappe.msgprint('❌ ' + __(OUTPUT_INFO_MESSAGE.INVALID_FORM));
         return;
     }
     const selectedState = form.doc.next_step;
     if (!selectedState) {
-        frappe.msgprint('⚠️ ' + OUTPUT_INFO_MESSAGE.PLEASE_SELECT_NEXT_STEP);
+        frappe.msgprint('⚠️ ' + __(OUTPUT_INFO_MESSAGE.PLEASE_SELECT_NEXT_STEP));
         return;
     }
 
@@ -451,7 +451,7 @@ async function handleValidateButtonClick(form: FrappeForm<SerialNoWorkflow>, sn_
         modal.set_state('default');
     } catch (err) {
         modal.set_title(__("Analysis Finished"));
-        modal.set_message(`<div style='color:red;'>❌ ${OUTPUT_INFO_MESSAGE.GENERAL_ERROR} ${err}</div>`);
+        modal.set_message(`<div style='color:red;'>❌ ${__(OUTPUT_INFO_MESSAGE.GENERAL_ERROR)} ${err}</div>`);
         modal.set_state('default');
     } finally {
         try { dialog.get_field('serialno_validate')['df'].disabled = 0; dialog.refresh(); } catch (e) { console.warn('Failed to re-enable button:', e); }
@@ -468,7 +468,7 @@ async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
 
     const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', activeWorkflowName);
     const initialState = workflowDoc.states?.[0]?.state;
-    if (!initialState) frappe.throw('Initial Workflow state not found.');
+    if (!initialState) frappe.throw(__("Initial Workflow state not found."));
 
     const outputsMap: Record<string, boolean> = {
         [OUTPUT_INFO_MESSAGE.SN_FOUND_ERP]: true,
@@ -608,7 +608,7 @@ frappe.ui.form.on('Serial No Workflow', {
                     try {
                         if (!agt?.utils?.dialog?.load) throw new Error('agt.utils.dialog.load não disponível.');
                         const dialog = agt.utils.dialog.load({
-                            title: 'Add SN',
+                            title: __("Add SN"),
                             fields: [
                                 {
                                     label: `<b>📷 ${__("Scan barcode")}</b><p><span class="text-muted small" style="font-size: 0.7em;">${__("Click to activate the barcode scanner.")}</span></p>`,
@@ -631,8 +631,8 @@ frappe.ui.form.on('Serial No Workflow', {
                                             });
                                         } catch (scannerError) {
                                             console.error("Error initializing scanner:", scannerError);
-                                            frappe.msgprint(OUTPUT_INFO_MESSAGE.COULD_NOT_START_SCANNER);
-                                            frappe.show_alert({ message: OUTPUT_INFO_MESSAGE.COULD_NOT_START_SCANNER, indicator: 'red' });
+                                            frappe.msgprint(__(OUTPUT_INFO_MESSAGE.COULD_NOT_START_SCANNER));
+                                            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.COULD_NOT_START_SCANNER), indicator: 'red' });
                                         }
                                     }
                                 },
@@ -666,7 +666,7 @@ frappe.ui.form.on('Serial No Workflow', {
             agt?.utils?.dialog?.close_all?.();
         } catch (e) {
             console.error('Error refreshing form:', e);
-            frappe.msgprint('❌ ' + OUTPUT_INFO_MESSAGE.ERROR_UPDATING_FORM);
+            frappe.msgprint('❌ ' + __(OUTPUT_INFO_MESSAGE.ERROR_UPDATING_FORM));
         }
     },
 
@@ -685,19 +685,19 @@ frappe.ui.form.on('Serial No Workflow', {
             const userHasPermission = allowedRoles.some(role => userRoles.includes(role));
             if (userHasPermission) {
                 is_force_state_allowed = !!frm?.doc?.checkbox_force_state;
-                frappe.show_alert({ message: is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED, indicator: is_force_state_allowed ? 'green' : 'orange' });
+                frappe.show_alert({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED), indicator: is_force_state_allowed ? 'green' : 'orange' });
                 console.log("is_force_state_allowed updated to:", is_force_state_allowed);
             } else {
                 is_force_state_allowed = false;
                 if (frm?.doc?.checkbox_force_state === 1 && frm.set_value) {
                     frm.set_value('checkbox_force_state', 0);
-                    frappe.show_alert({ message: OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW, indicator: 'red' });
+                    frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW), indicator: 'red' });
                 }
             }
         } catch (e) {
             is_force_state_allowed = false;
             console.error('Error processing checkbox_force_state:', e);
-            frappe.show_alert({ message: OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE, indicator: 'red' });
+            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE), indicator: 'red' });
         }
     }
 });
