@@ -595,9 +595,12 @@ frappe.ui.form.on('Serial No Workflow', {
             const sn_workflow = await ensureLoadedWorkflow();
             const user_roles = Array.isArray(frappe.boot?.user?.roles) ? frappe.boot.user.roles : [];
             const transitions = Array.isArray(sn_workflow?.transitions) ? sn_workflow.transitions : [];
-            const next_step_options = Array.from(new Set(
+            const allowedStatesSet = new Set(
                 transitions.filter((t: any) => user_roles.includes(t.allowed)).map((t: any) => t.next_state)
-            ));
+            );
+            const next_step_options = sn_workflow.states
+              .map((s: any) => s.state)
+              .filter((state: string) => allowedStatesSet.has(state));
             form.set_df_property('next_step', 'options', next_step_options);
             // binds add_sn button (single listener)
             if (

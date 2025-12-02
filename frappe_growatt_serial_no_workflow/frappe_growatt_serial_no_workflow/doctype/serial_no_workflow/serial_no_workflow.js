@@ -510,9 +510,10 @@
         const sn_workflow = await ensureLoadedWorkflow();
         const user_roles = Array.isArray(frappe.boot?.user?.roles) ? frappe.boot.user.roles : [];
         const transitions = Array.isArray(sn_workflow?.transitions) ? sn_workflow.transitions : [];
-        const next_step_options = Array.from(new Set(
+        const allowedStatesSet = new Set(
           transitions.filter((t) => user_roles.includes(t.allowed)).map((t) => t.next_state)
-        ));
+        );
+        const next_step_options = sn_workflow.states.map((s) => s.state).filter((state) => allowedStatesSet.has(state));
         form.set_df_property("next_step", "options", next_step_options);
         if (typeof form.fields_dict?.["add_sn"]?.$wrapper?.off === "function" && typeof form.fields_dict["add_sn"].$wrapper.on === "function") {
           form.fields_dict["add_sn"].$wrapper.off("click").on("click", () => {
