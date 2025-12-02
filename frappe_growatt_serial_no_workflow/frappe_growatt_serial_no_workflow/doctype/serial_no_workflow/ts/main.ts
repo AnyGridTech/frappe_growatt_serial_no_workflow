@@ -607,16 +607,14 @@ frappe.ui.form.on('Serial No Workflow', {
                 form.fields_dict['add_sn'].$wrapper.off('click').on('click', () => {
                     try {
                         if (!agt?.utils?.dialog?.load) throw new Error('agt.utils.dialog.load não disponível.');
+                        // Separar label e hint para garantir tradução
+                        const scanLabel = __("Scan barcode");
+                        const scanHint = __("Click to activate the barcode scanner.");
                         const dialog = agt.utils.dialog.load({
                             title: __("Add SN"),
                             fields: [
                                 {
-                                    label: `<b>📷 ${__("Scan barcode")}</b><p><span class="text-muted small" style="font-size: 0.7em;">${__("Click to activate the barcode scanner.")}</span></p>`,
-                                    // Garante tradução correta: texto puro dentro do __()
-                                    // Se necessário, pode-se separar ainda mais:
-                                    // const scanLabel = __("Scan barcode");
-                                    // const scanHint = __("Click to activate the barcode scanner.");
-                                    // label: `<b>📷 ${scanLabel}</b><p><span class="text-muted small" style="font-size: 0.7em;">${scanHint}</span></p>`,
+                                    label: `<b>📷 ${scanLabel}</b><p><span class="text-muted small" style="font-size: 0.7em;">${scanHint}</span></p>`,
                                     fieldname: 'serialno_scan-barcode',
                                     fieldtype: 'Button',
                                     click: () => {
