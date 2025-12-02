@@ -632,7 +632,6 @@ frappe.ui.form.on('Serial No Workflow', {
                                         } catch (scannerError) {
                                             console.error("Error initializing scanner:", scannerError);
                                             frappe.msgprint(__(OUTPUT_INFO_MESSAGE.COULD_NOT_START_SCANNER));
-                                            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.COULD_NOT_START_SCANNER), indicator: 'red' });
                                         }
                                     }
                                 },
@@ -685,19 +684,19 @@ frappe.ui.form.on('Serial No Workflow', {
             const userHasPermission = allowedRoles.some(role => userRoles.includes(role));
             if (userHasPermission) {
                 is_force_state_allowed = !!frm?.doc?.checkbox_force_state;
-                frappe.show_alert({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED), indicator: is_force_state_allowed ? 'green' : 'orange' });
+                frappe.msgprint({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED) });
                 console.log("is_force_state_allowed updated to:", is_force_state_allowed);
             } else {
                 is_force_state_allowed = false;
                 if (frm?.doc?.checkbox_force_state === 1 && frm.set_value) {
                     frm.set_value('checkbox_force_state', 0);
-                    frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW), indicator: 'red' });
+                    frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW) });
                 }
             }
         } catch (e) {
             is_force_state_allowed = false;
             console.error('Error processing checkbox_force_state:', e);
-            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE), indicator: 'red' });
+            frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE) });
         }
     }
 });
