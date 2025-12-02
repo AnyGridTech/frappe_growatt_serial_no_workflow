@@ -1,3 +1,6 @@
+Eq:,Eq:
+Code:,Código:
+Allowed state(s):,Estado(s) permitido(s):
 # SN not found.,SN não encontrado.
 # SN found in ERPNext database.,SN encontrado na base do ERPNext.
 # SN found in Growatt database.,SN encontrado na base da Growatt.
@@ -279,7 +282,7 @@ Lost in Transit for Repair,Perdido em Trânsito para Reparo
 Lost in Transport to Customer,Perdido no Transporte ao Cliente
 Lost Item,Item Perdido
 New in Stock,Novo em Estoque
-Stock Separation, Separação de Estoque
+Stock Separation,Separação de Estoque
 Shipping to Customer In Progress,Envio ao Cliente em Andamento
 Receiving Quality,Qualidade do Recebimento
 Returned to Customer,Devolvido ao Cliente

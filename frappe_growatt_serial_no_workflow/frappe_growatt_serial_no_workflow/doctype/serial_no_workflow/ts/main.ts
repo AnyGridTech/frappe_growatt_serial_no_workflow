@@ -265,7 +265,7 @@ async function validateAndAddToForm(
                 modelName = snInfo.item_name || '';
                 companyName = snInfo.company || '';
                 isValid = true;
-                message = `<b>${serialNumber}:</b>✔️ ${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP} (Eq: ${modelName}, Code: ${modelInfo})`;
+                message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_ERP)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
                 outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
             } else if (item && !snInfo) {
                 // Always treat item as an array
@@ -306,7 +306,7 @@ async function validateAndAddToForm(
                         modelName = selectedItem.item_name;
                         companyName = selectedItem.company || '';
                         isValid = true;
-                        message = `<b>${serialNumber}:</b>✔️ ${OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT} (Eq: ${modelName}, Code: ${modelInfo})`;
+                        message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
                         outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
                         // Update table and log only here
                         const child: any = getOrCreateChildRow(form);
@@ -323,12 +323,12 @@ async function validateAndAddToForm(
                     } else if (selectedItem) {
                         // Selected, but does not have valid data
                         console.warn('*DEBUG* Selected item does not have valid data:', selectedItem);
-                        message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
+                        message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
                         outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
                         return message;
                     } else {
                         console.warn('*DEBUG* No MPPT was selected in the dialog.');
-                        message = `<b>${serialNumber}:</b>❌ ${OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED}`;
+                        message = `<b>${serialNumber}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED)}`;
                         outputInfo = OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED;
                         return message;
                     }
@@ -339,11 +339,11 @@ async function validateAndAddToForm(
                     modelName = realItem.item_name;
                     companyName = realItem.company || '';
                     isValid = true;
-                    message = `<b>${serialNumber}:</b>✔️ ${OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT} (Eq: ${modelName}, Code: ${modelInfo})`;
+                    message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
                     outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
                 } else {
                     // No model found
-                    message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
+                    message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
                     outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
                 }
             }
@@ -357,7 +357,7 @@ async function validateAndAddToForm(
                         .filter((t: any) => t.state === snInfo.workflow_state)
                         .map((t: any) => t.next_state)
                         .filter((v: any, i: number, self: any) => self.indexOf(v) === i);
-                    message = `<b>${serialNumber}:</b>❌ ${OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION} <b>${__("Current state:")}</b> ${snInfo.workflow_state}, <b>${__("Selected next:")}</b> ${selectedState}. <b>${__("Allowed state(s):")}</b> ${allowedStates.join(', ')}.`;
+                    message = `<b>${serialNumber}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION)} <b>${__("Current state:")}</b> ${snInfo.workflow_state}, <b>${__("Selected next:")}</b> ${selectedState}. <b>${__("Allowed state(s):")}</b> ${allowedStates.join(', ')}.`;
                     outputInfo = OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION;
                     isValid = false;
                 }
@@ -377,7 +377,7 @@ async function validateAndAddToForm(
             }
         } catch (err) {
             console.error('Error validating SN:', err);
-            message = `<b>${serialNumber}:</b>❌ ${OUTPUT_INFO_MESSAGE.ERROR_VALIDATING}`;
+            message = `<b>${serialNumber}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.ERROR_VALIDATING)}`;
             outputInfo = OUTPUT_INFO_MESSAGE.ERROR_VALIDATING;
             const child: any = getOrCreateChildRow(form);
             child.serial_no = serialNumber;
@@ -612,6 +612,11 @@ frappe.ui.form.on('Serial No Workflow', {
                             fields: [
                                 {
                                     label: `<b>📷 ${__("Scan barcode")}</b><p><span class="text-muted small" style="font-size: 0.7em;">${__("Click to activate the barcode scanner.")}</span></p>`,
+                                    // Garante tradução correta: texto puro dentro do __()
+                                    // Se necessário, pode-se separar ainda mais:
+                                    // const scanLabel = __("Scan barcode");
+                                    // const scanHint = __("Click to activate the barcode scanner.");
+                                    // label: `<b>📷 ${scanLabel}</b><p><span class="text-muted small" style="font-size: 0.7em;">${scanHint}</span></p>`,
                                     fieldname: 'serialno_scan-barcode',
                                     fieldtype: 'Button',
                                     click: () => {

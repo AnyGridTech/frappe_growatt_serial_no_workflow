@@ -225,7 +225,7 @@
           modelName = snInfo2.item_name || "";
           companyName = snInfo2.company || "";
           isValid = true;
-          message = `<b>${serialNumber}:</b>\u2714\uFE0F ${OUTPUT_INFO_MESSAGE.SN_FOUND_ERP} (Eq: ${modelName}, Code: ${modelInfo})`;
+          message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_ERP)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
           outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
         } else if (item && !snInfo2) {
           const itemList = Array.isArray(item) ? item : [item];
@@ -262,7 +262,7 @@
               modelName = selectedItem.item_name;
               companyName = selectedItem.company || "";
               isValid = true;
-              message = `<b>${serialNumber}:</b>\u2714\uFE0F ${OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT} (Eq: ${modelName}, Code: ${modelInfo})`;
+              message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
               outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
               const child = getOrCreateChildRow(form);
               child.serial_no = serialNumber;
@@ -277,12 +277,12 @@
               return message;
             } else if (selectedItem) {
               console.warn("*DEBUG* Selected item does not have valid data:", selectedItem);
-              message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
+              message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
               outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
               return message;
             } else {
               console.warn("*DEBUG* No MPPT was selected in the dialog.");
-              message = `<b>${serialNumber}:</b>\u274C ${OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED}`;
+              message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED)}`;
               outputInfo = OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED;
               return message;
             }
@@ -292,10 +292,10 @@
             modelName = realItem.item_name;
             companyName = realItem.company || "";
             isValid = true;
-            message = `<b>${serialNumber}:</b>\u2714\uFE0F ${OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT} (Eq: ${modelName}, Code: ${modelInfo})`;
+            message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
             outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
           } else {
-            message = `<b>${serialNumber}: </b>${OUTPUT_INFO_MESSAGE.SN_NOT_FOUND}`;
+            message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
             outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
           }
         }
@@ -305,7 +305,7 @@
           );
           if (!available_transitions.length && !is_force_state_allowed) {
             const allowedStates = sn_workflow.transitions.filter((t) => t.state === snInfo2.workflow_state).map((t) => t.next_state).filter((v, i, self) => self.indexOf(v) === i);
-            message = `<b>${serialNumber}:</b>\u274C ${OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION} <b>${__("Current state:")}</b> ${snInfo2.workflow_state}, <b>${__("Selected next:")}</b> ${selectedState}. <b>${__("Allowed state(s):")}</b> ${allowedStates.join(", ")}.`;
+            message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION)} <b>${__("Current state:")}</b> ${snInfo2.workflow_state}, <b>${__("Selected next:")}</b> ${selectedState}. <b>${__("Allowed state(s):")}</b> ${allowedStates.join(", ")}.`;
             outputInfo = OUTPUT_INFO_MESSAGE.INVALID_WORKFLOW_TRANSITION;
             isValid = false;
           }
@@ -324,7 +324,7 @@
         }
       } catch (err) {
         console.error("Error validating SN:", err);
-        message = `<b>${serialNumber}:</b>\u274C ${OUTPUT_INFO_MESSAGE.ERROR_VALIDATING}`;
+        message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.ERROR_VALIDATING)}`;
         outputInfo = OUTPUT_INFO_MESSAGE.ERROR_VALIDATING;
         const child = getOrCreateChildRow(form);
         child.serial_no = serialNumber;
@@ -523,6 +523,11 @@
                 fields: [
                   {
                     label: `<b>\u{1F4F7} ${__("Scan barcode")}</b><p><span class="text-muted small" style="font-size: 0.7em;">${__("Click to activate the barcode scanner.")}</span></p>`,
+                    // Garante tradução correta: texto puro dentro do __()
+                    // Se necessário, pode-se separar ainda mais:
+                    // const scanLabel = __("Scan barcode");
+                    // const scanHint = __("Click to activate the barcode scanner.");
+                    // label: `<b>📷 ${scanLabel}</b><p><span class="text-muted small" style="font-size: 0.7em;">${scanHint}</span></p>`,
                     fieldname: "serialno_scan-barcode",
                     fieldtype: "Button",
                     click: () => {
