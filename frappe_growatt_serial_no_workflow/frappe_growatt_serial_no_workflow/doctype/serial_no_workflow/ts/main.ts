@@ -37,8 +37,8 @@ const OUTPUT_INFO_MESSAGE = {
     INVALID_FORM: __("Invalid form."), // pt-BR: Formulário inválido.
     ERROR_OPENING_DIALOG: __("Error opening the SN addition window. Check the console for details."), // pt-BR: Erro ao abrir a janela de adição de SN. Verifique o console para detalhes.
     COULD_NOT_START_SCANNER: __("Could not start the scanner. Check camera permissions or if a camera is available."), // pt-BR: Não foi possível iniciar o scanner. Verifique as permissões da câmera ou se uma câmera está disponível.
-    FORCE_WORKFLOW_ENABLED: __("Force Workflow state <b>ENABLED</b>.") , // pt-BR: Forçar estado do Workflow <b>ATIVADO</b>.
-    FORCE_WORKFLOW_DISABLED: __("Force Workflow state <b>DISABLED</b>.") , // pt-BR: Forçar estado do Workflow <b>DESATIVADO</b>.
+    FORCE_WORKFLOW_ENABLED: __("Force Workflow state <b>ENABLED</b>."), // pt-BR: Forçar estado do Workflow <b>ATIVADO</b>.
+    FORCE_WORKFLOW_DISABLED: __("Force Workflow state <b>DISABLED</b>."), // pt-BR: Forçar estado do Workflow <b>DESATIVADO</b>.
     NO_PERMISSION_FORCE_WORKFLOW: __("You do not have permission to force the Workflow state."), // pt-BR: Você não tem permissão para forçar o estado do Workflow.
     ERROR_PROCESSING_FORCE_STATE: __("Error processing force state permission."), // pt-BR: Erro ao processar permissão de forçar estado.
     ERROR_UPDATING_FORM: __("Error updating the form. Check the console."), // pt-BR: Erro ao atualizar o formulário. Verifique o console.
@@ -465,6 +465,12 @@ async function handleValidateButtonClick(form: FrappeForm<SerialNoWorkflow>, sn_
 async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
     const activeWorkflowName = await getActiveWorkflowName();
     if (!activeWorkflowName) throw 'Active workflow for Serial No not found.';
+    
+    // // Proteção contra nomes temporários de documentos não salvos
+    // if (typeof activeWorkflowName === 'string' && activeWorkflowName.startsWith('new-')) {
+    //     console.error('Attempted to process with temporary workflow name:', activeWorkflowName);
+    //     frappe.throw(__("The workflow is not saved yet. Please save the workflow configuration first."));
+    // }
 
     const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', activeWorkflowName);
     const initialState = workflowDoc.states?.[0]?.state;
@@ -599,8 +605,8 @@ frappe.ui.form.on('Serial No Workflow', {
                 transitions.filter((t: any) => user_roles.includes(t.allowed)).map((t: any) => t.next_state)
             );
             const next_step_options = sn_workflow.states
-              .map((s: any) => s.state)
-              .filter((state: string) => allowedStatesSet.has(state));
+                .map((s: any) => s.state)
+                .filter((state: string) => allowedStatesSet.has(state));
             form.set_df_property('next_step', 'options', next_step_options);
             // binds add_sn button (single listener)
             if (
@@ -680,29 +686,30 @@ frappe.ui.form.on('Serial No Workflow', {
         form.refresh_field('next_step');
     },
 
-    validate: async function (form: FrappeForm<SerialNoWorkflow>) {
+    after_save: async function (form: FrappeForm<SerialNoWorkflow>) {
         await processSerialNumbers(form);
     },
 
-    checkbox_force_state: function (frm) {
+    checkbox_force_state: function (form: FrappeForm<SerialNoWorkflow>) {
         try {
             const userRoles = Array.isArray(frappe.boot?.user?.roles) ? frappe.boot.user.roles : [];
             const userHasPermission = allowedRoles.some(role => userRoles.includes(role));
             if (userHasPermission) {
-                is_force_state_allowed = !!frm?.doc?.checkbox_force_state;
-                frappe.msgprint({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED) });
+                is_force_state_allowed = !!form?.doc?.checkbox_force_state;
+                frappe.show_alert({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED), indicator: 'blue' });
                 console.log("is_force_state_allowed updated to:", is_force_state_allowed);
             } else {
                 is_force_state_allowed = false;
-                if (frm?.doc?.checkbox_force_state === 1 && frm.set_value) {
-                    frm.set_value('checkbox_force_state', 0);
-                    frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW) });
+                if (form?.doc?.checkbox_force_state === 1 && form.set_value) {
+                    form.set_value('checkbox_force_state', 0);
+                    frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW), indicator: 'yellow' });
+                    console.log(__(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW));
                 }
             }
         } catch (e) {
             is_force_state_allowed = false;
             console.error('Error processing checkbox_force_state:', e);
-            frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE) });
+            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE), indicator: 'red' });
         }
     }
 });

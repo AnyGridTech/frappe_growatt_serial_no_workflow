@@ -586,28 +586,29 @@ ${data.result.text}` : data.result.text;
     next_step: function(form) {
       form.refresh_field("next_step");
     },
-    validate: async function(form) {
+    after_save: async function(form) {
       await processSerialNumbers(form);
     },
-    checkbox_force_state: function(frm) {
+    checkbox_force_state: function(form) {
       try {
         const userRoles = Array.isArray(frappe.boot?.user?.roles) ? frappe.boot.user.roles : [];
         const userHasPermission = allowedRoles.some((role) => userRoles.includes(role));
         if (userHasPermission) {
-          is_force_state_allowed = !!frm?.doc?.checkbox_force_state;
-          frappe.msgprint({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED) });
+          is_force_state_allowed = !!form?.doc?.checkbox_force_state;
+          frappe.show_alert({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED), indicator: "blue" });
           console.log("is_force_state_allowed updated to:", is_force_state_allowed);
         } else {
           is_force_state_allowed = false;
-          if (frm?.doc?.checkbox_force_state === 1 && frm.set_value) {
-            frm.set_value("checkbox_force_state", 0);
-            frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW) });
+          if (form?.doc?.checkbox_force_state === 1 && form.set_value) {
+            form.set_value("checkbox_force_state", 0);
+            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW), indicator: "yellow" });
+            console.log(__(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW));
           }
         }
       } catch (e) {
         is_force_state_allowed = false;
         console.error("Error processing checkbox_force_state:", e);
-        frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE) });
+        frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE), indicator: "red" });
       }
     }
   });
