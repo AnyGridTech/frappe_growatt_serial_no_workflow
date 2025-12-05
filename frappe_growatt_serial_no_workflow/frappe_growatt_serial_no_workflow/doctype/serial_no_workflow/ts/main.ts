@@ -565,6 +565,12 @@ async function handleValidateButtonClick(form: FrappeForm<SerialNoWorkflow>, sn_
 async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
     const activeWorkflowName = await getActiveWorkflowName();
     if (!activeWorkflowName) throw 'Active workflow for Serial No not found.';
+    
+    // // Proteção contra nomes temporários de documentos não salvos
+    // if (typeof activeWorkflowName === 'string' && activeWorkflowName.startsWith('new-')) {
+    //     console.error('Attempted to process with temporary workflow name:', activeWorkflowName);
+    //     frappe.throw(__("The workflow is not saved yet. Please save the workflow configuration first."));
+    // }
 
     const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', activeWorkflowName);
     const initialState = workflowDoc.states?.[0]?.state;
