@@ -24,6 +24,7 @@ const OUTPUT_INFO_MESSAGE = {
     INPUT_VALIDATION_ERROR: __("Input validation error."), // pt-BR: Erro ao validar entrada.
     INVALID_WORKFLOW_TRANSITION: __("Invalid workflow state transition."), // pt-BR: Transição de workflow state inválida.
     MPPT_NOT_SELECTED: __("MPPT not selected."), // pt-BR: Seleção de MPPT requerida.
+    COMPANY_NOT_SELECTED: __("Company not selected."), // pt-BR: Seleção de Company requerida.
     ERROR_VALIDATING: __("Error validating."), // pt-BR: Erro ao validar.
     INCOMPLETE_DATA: __("Incomplete data for SN."), // pt-BR: Dados incompletos para o SN.
     PROCESS_ABORTED: __("Process aborted due to incomplete data."), // pt-BR: Processo abortado devido a dados incompletos.
@@ -37,11 +38,16 @@ const OUTPUT_INFO_MESSAGE = {
     INVALID_FORM: __("Invalid form."), // pt-BR: Formulário inválido.
     ERROR_OPENING_DIALOG: __("Error opening the SN addition window. Check the console for details."), // pt-BR: Erro ao abrir a janela de adição de SN. Verifique o console para detalhes.
     COULD_NOT_START_SCANNER: __("Could not start the scanner. Check camera permissions or if a camera is available."), // pt-BR: Não foi possível iniciar o scanner. Verifique as permissões da câmera ou se uma câmera está disponível.
-    FORCE_WORKFLOW_ENABLED: __("Force Workflow state <b>ENABLED</b>.") , // pt-BR: Forçar estado do Workflow <b>ATIVADO</b>.
-    FORCE_WORKFLOW_DISABLED: __("Force Workflow state <b>DISABLED</b>.") , // pt-BR: Forçar estado do Workflow <b>DESATIVADO</b>.
+    FORCE_WORKFLOW_ENABLED: __("Force Workflow state <b>ENABLED</b>."), // pt-BR: Forçar estado do Workflow <b>ATIVADO</b>.
+    FORCE_WORKFLOW_DISABLED: __("Force Workflow state <b>DISABLED</b>."), // pt-BR: Forçar estado do Workflow <b>DESATIVADO</b>.
     NO_PERMISSION_FORCE_WORKFLOW: __("You do not have permission to force the Workflow state."), // pt-BR: Você não tem permissão para forçar o estado do Workflow.
     ERROR_PROCESSING_FORCE_STATE: __("Error processing force state permission."), // pt-BR: Erro ao processar permissão de forçar estado.
     ERROR_UPDATING_FORM: __("Error updating the form. Check the console."), // pt-BR: Erro ao atualizar o formulário. Verifique o console.
+    SN_CREATED_SUCCESSFULLY: __("SN created successfully."), // pt-BR: SN criado com sucesso.
+    SN_UPDATED_SUCCESSFULLY: __("SN updated successfully."), // pt-BR: SN atualizado com sucesso.
+    PROCESSING_SNS: __("Processing Serial Numbers..."), // pt-BR: Processando Números de Série...
+    PROCESS_COMPLETED: __("Process Completed"), // pt-BR: Processo Concluído
+    PROCESS_FINISHED_SUCCESS: __("All serial numbers were processed successfully!"), // pt-BR: Todos os números de série foram processados com sucesso!
 };
 
 /* =========================
@@ -304,9 +310,56 @@ async function validateAndAddToForm(
                         // Only fill after choosing the MPPT and if the item is valid
                         modelInfo = selectedItem.item_code;
                         modelName = selectedItem.item_name;
-                        companyName = selectedItem.company || '';
+                        
+                        // Buscar companies disponíveis e mostrar dialog de seleção
+                        let companies: any[] = [];
+                        try {
+                            companies = await frappe.db.get_list('Company', {
+                                fields: ['name'],
+                                filters: { name: ['in', ['Anygrid', 'Growatt']] }
+                            });
+                        } catch (e) {
+                            console.error('Error fetching companies:', e);
+                        }
+                        
+                        if (companies && companies.length > 0) {
+                            const companyOptions = companies.map((c: any) => c.name);
+                            const companyDialogTitle = __('Select the Company');
+                            
+                            const companyDialogPromise: Promise<string> = new Promise((resolve) => {
+                                agt.utils.dialog.load({
+                                    title: companyDialogTitle,
+                                    fields: [
+                                        {
+                                            fieldname: 'company',
+                                            label: 'Company',
+                                            fieldtype: 'Select',
+                                            options: companyOptions,
+                                            reqd: true
+                                        }
+                                    ],
+                                    primary_action: function (values: any) {
+                                        const company = values.company;
+                                        console.log('*DEBUG* The Company value selected in the dialog box.', company);
+                                        agt.utils.dialog.close_by_title(companyDialogTitle);
+                                        resolve(company);
+                                    }
+                                });
+                            });
+                            
+                            companyName = await companyDialogPromise;
+                            if (!companyName) {
+                                console.warn('*DEBUG* No Company was selected in the dialog.');
+                                message = `<b>${serialNumber}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED)}`;
+                                outputInfo = OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED;
+                                return message;
+                            }
+                        } else {
+                            companyName = '';
+                        }
+                        
                         isValid = true;
-                        message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
+                        message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo}, ${__("Company:")} ${companyName})`;
                         outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
                         // Update table and log only here
                         const child: any = getOrCreateChildRow(form);
@@ -337,9 +390,56 @@ async function validateAndAddToForm(
                     const realItem = itemList[0];
                     modelInfo = realItem.item_code;
                     modelName = realItem.item_name;
-                    companyName = realItem.company || '';
+                    
+                    // Buscar companies disponíveis e mostrar dialog de seleção
+                    let companies: any[] = [];
+                    try {
+                        companies = await frappe.db.get_list('Company', {
+                            fields: ['name'],
+                            filters: { name: ['in', ['Anygrid', 'Growatt']] }
+                        });
+                    } catch (e) {
+                        console.error('Error fetching companies:', e);
+                    }
+                    
+                    if (companies && companies.length > 0) {
+                        const companyOptions = companies.map((c: any) => c.name);
+                        const companyDialogTitle = __('Select the Company');
+                        
+                        const companyDialogPromise: Promise<string> = new Promise((resolve) => {
+                            agt.utils.dialog.load({
+                                title: companyDialogTitle,
+                                fields: [
+                                    {
+                                        fieldname: 'company',
+                                        label: 'Company',
+                                        fieldtype: 'Select',
+                                        options: companyOptions,
+                                        reqd: true
+                                    }
+                                ],
+                                primary_action: function (values: any) {
+                                    const company = values.company;
+                                    console.log('*DEBUG* The Company value selected in the dialog box.', company);
+                                    agt.utils.dialog.close_by_title(companyDialogTitle);
+                                    resolve(company);
+                                }
+                            });
+                        });
+                        
+                        companyName = await companyDialogPromise;
+                        if (!companyName) {
+                            console.warn('*DEBUG* No Company was selected in the dialog.');
+                            message = `<b>${serialNumber}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED)}`;
+                            outputInfo = OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED;
+                            return message;
+                        }
+                    } else {
+                        companyName = '';
+                    }
+                    
                     isValid = true;
-                    message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo})`;
+                    message = `<b>${serialNumber}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo}, ${__("Company:")} ${companyName})`;
                     outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
                 } else {
                     // No model found
@@ -465,6 +565,12 @@ async function handleValidateButtonClick(form: FrappeForm<SerialNoWorkflow>, sn_
 async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
     const activeWorkflowName = await getActiveWorkflowName();
     if (!activeWorkflowName) throw 'Active workflow for Serial No not found.';
+    
+    // // Proteção contra nomes temporários de documentos não salvos
+    // if (typeof activeWorkflowName === 'string' && activeWorkflowName.startsWith('new-')) {
+    //     console.error('Attempted to process with temporary workflow name:', activeWorkflowName);
+    //     frappe.throw(__("The workflow is not saved yet. Please save the workflow configuration first."));
+    // }
 
     const workflowDoc = await frappe.db.get_doc<Workflow>('Workflow', activeWorkflowName);
     const initialState = workflowDoc.states?.[0]?.state;
@@ -484,6 +590,14 @@ async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
         // nothing to process
         return;
     }
+
+    // Cria o modal de progresso
+    const modal = new agt.ui.UltraDialog({ 
+        title: __(OUTPUT_INFO_MESSAGE.PROCESSING_SNS), 
+        message: "", 
+        visible: false 
+    });
+    modal.set_state('waiting');
 
     const existingRecords = await frappe.db.get_list('Serial No', {
         fields: ['serial_no', 'name', 'workflow_state'],
@@ -527,58 +641,107 @@ async function processSerialNumbers(form: FrappeForm<SerialNoWorkflow>) {
     }
 
     // Execute operations
-    for (const op of operations) {
-        if (op.isNew) {
-            try {
-                const correspondingRow = successfulSerialNumbers.find((r: any) => r.serial_no === op.sn);
-                const newSN = await frappe.db.insert({
-                    doctype: 'Serial No',
-                    serial_no: op.sn,
-                    item_code: correspondingRow?.item_code,
-                    item_name: correspondingRow?.item_name,
-                    company: correspondingRow?.company,
-                    workflow_state: initialState,
-                });
-                if (newSN) {
-                    frappe.msgprint(`✔️ ${__("Serial Number")}: ${op.sn} ${__("was successfully added to the database.")}`);
-                    form.doc.serial_no_table.filter((c: any) => c.serial_no === op.sn).forEach((c: any) => c.is_success = 1);
-                    form.refresh_field('serial_no_table');
-
-                    // Fix: use the name of the new document created to update workflow_state
-                    await agt.utils.update_workflow_state({
-                        doctype: "Serial No",
-                        docname: newSN.name || newSN, // fallback in case a string is returned
-                        workflow_state: op.targetState,
-                        ignore_workflow_validation: true
+    try {
+        for (const op of operations) {
+            let message = '';
+            if (op.isNew) {
+                try {
+                    const correspondingRow = successfulSerialNumbers.find((r: any) => r.serial_no === op.sn);
+                    const newSN = await frappe.db.insert({
+                        doctype: 'Serial No',
+                        serial_no: op.sn,
+                        item_code: correspondingRow?.item_code,
+                        item_name: correspondingRow?.item_name,
+                        company: correspondingRow?.company,
+                        workflow_state: initialState,
                     });
-                    console.log(`Workflow state updated to ${op.targetState} for new SN ${op.sn}.`);
+                    if (newSN) {
+                        form.doc.serial_no_table.filter((c: any) => c.serial_no === op.sn).forEach((c: any) => {
+                            c.is_success = 1;
+                            c.output_info = OUTPUT_INFO_MESSAGE.SN_CREATED_SUCCESSFULLY;
+                        });
+                        form.refresh_field('serial_no_table');
+
+                        // Fix: use the name of the new document created to update workflow_state
+                        await agt.utils.update_workflow_state({
+                            doctype: "Serial No",
+                            docname: newSN.name || newSN, // fallback in case a string is returned
+                            workflow_state: op.targetState,
+                            ignore_workflow_validation: true
+                        });
+                        console.log(`Workflow state updated to ${op.targetState} for new SN ${op.sn}.`);
+                        
+                        message = `<b>${op.sn}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_CREATED_SUCCESSFULLY)} (${__("State")}: ${op.targetState})`;
+                        modal.set_message(message);
+                        modal.visible(true);
+                        modal.set_state('waiting');
+                    }
+                } catch (err) {
+                    console.error(`Error adding SN ${op.sn}:`, err);
+                    message = `<b>${op.sn}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.ERROR_ADDING_SN)}`;
+                    modal.set_message(message);
+                    modal.visible(true);
+                    modal.set_state('waiting');
+                    
+                    form.doc.serial_no_table.filter((c: any) => c.serial_no === op.sn).forEach((c: any) => {
+                        c.is_success = 0;
+                        c.output_info = OUTPUT_INFO_MESSAGE.ERROR_ADDING_SN;
+                    });
+                    form.refresh_field('serial_no_table');
                 }
-            } catch (err) {
-                console.error(`Error adding SN ${op.sn}:`, err);
-                frappe.msgprint(`❌ ${__("Error adding serial number")}: ${op.sn}.`);
-                throw err;
-            }
-        } else {
-            try {
-                // Fix: get the document name by serial_no
-                const existing = existingRecords.find((i: any) => i.serial_no === op.sn);
-                const docname = existing?.name || op.sn;
-                await agt.utils.update_workflow_state({
-                    doctype: 'Serial No',
-                    docname,
-                    workflow_state: op.targetState,
-                    ignore_workflow_validation: !!form.doc.checkbox_force_state,
-                });
-                console.log(`Workflow state updated to ${op.targetState} for existing SN ${op.sn}.`);
-            } catch (err) {
-                console.error(`Error updating workflow state for SN ${op.sn}:`, err);
-                frappe.msgprint(`❌ ${__("Failed to update workflow_state to")} ${op.targetState} ${__("for SN")}: ${op.sn}.`);
-                throw err;
+            } else {
+                try {
+                    // Fix: get the document name by serial_no
+                    const existing = existingRecords.find((i: any) => i.serial_no === op.sn);
+                    const docname = existing?.name || op.sn;
+                    await agt.utils.update_workflow_state({
+                        doctype: 'Serial No',
+                        docname,
+                        workflow_state: op.targetState,
+                        ignore_workflow_validation: !!form.doc.checkbox_force_state,
+                    });
+                    console.log(`Workflow state updated to ${op.targetState} for existing SN ${op.sn}.`);
+                    
+                    form.doc.serial_no_table.filter((c: any) => c.serial_no === op.sn).forEach((c: any) => {
+                        c.is_success = 1;
+                        c.output_info = OUTPUT_INFO_MESSAGE.SN_UPDATED_SUCCESSFULLY;
+                    });
+                    form.refresh_field('serial_no_table');
+                    
+                    message = `<b>${op.sn}:</b>✔️ ${__(OUTPUT_INFO_MESSAGE.SN_UPDATED_SUCCESSFULLY)} (${__("State")}: ${op.targetState})`;
+                    modal.set_message(message);
+                    modal.visible(true);
+                    modal.set_state('waiting');
+                } catch (err) {
+                    console.error(`Error updating workflow state for SN ${op.sn}:`, err);
+                    message = `<b>${op.sn}:</b>❌ ${__(OUTPUT_INFO_MESSAGE.FAILED_UPDATE_WORKFLOW)} ${op.targetState}`;
+                    modal.set_message(message);
+                    modal.visible(true);
+                    modal.set_state('waiting');
+                    
+                    form.doc.serial_no_table.filter((c: any) => c.serial_no === op.sn).forEach((c: any) => {
+                        c.is_success = 0;
+                        c.output_info = OUTPUT_INFO_MESSAGE.FAILED_UPDATE_WORKFLOW;
+                    });
+                    form.refresh_field('serial_no_table');
+                }
             }
         }
-    }
 
-    form.refresh_field('serial_no_table');
+        // Finaliza o modal com sucesso
+        modal.set_title(__(OUTPUT_INFO_MESSAGE.PROCESS_COMPLETED));
+        modal.set_message("<div style='color:green;'>✔️ " + __(OUTPUT_INFO_MESSAGE.PROCESS_FINISHED_SUCCESS) + "</div>");
+        modal.set_state('default');
+        
+    } catch (err) {
+        // Em caso de erro geral
+        modal.set_title(__(OUTPUT_INFO_MESSAGE.PROCESS_COMPLETED));
+        modal.set_message(`<div style='color:red;'>❌ ${__(OUTPUT_INFO_MESSAGE.GENERAL_ERROR)} ${err}</div>`);
+        modal.set_state('default');
+        throw err;
+    } finally {
+        form.refresh_field('serial_no_table');
+    }
 }
 
 /* =========================
@@ -598,9 +761,21 @@ frappe.ui.form.on('Serial No Workflow', {
             const allowedStatesSet = new Set(
                 transitions.filter((t: any) => user_roles.includes(t.allowed)).map((t: any) => t.next_state)
             );
-            const next_step_options = sn_workflow.states
-              .map((s: any) => s.state)
-              .filter((state: string) => allowedStatesSet.has(state));
+            
+            // Filter states based on service_type
+            let next_step_options = sn_workflow.states
+                .map((s: any) => s.state)
+                .filter((state: string) => allowedStatesSet.has(state));
+            
+            // Apply service_type filter
+            const service_type = form.doc['service_type'];
+            if (service_type === 'Replacement') {
+                next_step_options = next_step_options.filter((state: string) => state.startsWith('[AR]'));
+            } else if (service_type === 'Repair') {
+                next_step_options = next_step_options.filter((state: string) => state.startsWith('[DR]'));
+            }
+            // If service_type is 'All' or empty, show all allowed states (no additional filter)
+            
             form.set_df_property('next_step', 'options', next_step_options);
             // binds add_sn button (single listener)
             if (
@@ -680,29 +855,68 @@ frappe.ui.form.on('Serial No Workflow', {
         form.refresh_field('next_step');
     },
 
-    validate: async function (form: FrappeForm<SerialNoWorkflow>) {
+    service_type: async function (form: FrappeForm<SerialNoWorkflow>) {
+        try {
+            // Reload next_step options when service_type changes
+            if (!form?.set_df_property) return;
+            form.set_df_property('next_step', 'options', []);
+            
+            const sn_workflow = await ensureLoadedWorkflow();
+            const user_roles = Array.isArray(frappe.boot?.user?.roles) ? frappe.boot.user.roles : [];
+            const transitions = Array.isArray(sn_workflow?.transitions) ? sn_workflow.transitions : [];
+            const allowedStatesSet = new Set(
+                transitions.filter((t: any) => user_roles.includes(t.allowed)).map((t: any) => t.next_state)
+            );
+            
+            // Filter states based on service_type
+            let next_step_options = sn_workflow.states
+                .map((s: any) => s.state)
+                .filter((state: string) => allowedStatesSet.has(state));
+            
+            // Apply service_type filter
+            const service_type = form.doc['service_type'];
+            if (service_type === 'Replacement') {
+                next_step_options = next_step_options.filter((state: string) => state.startsWith('[AR]'));
+            } else if (service_type === 'Repair') {
+                next_step_options = next_step_options.filter((state: string) => state.startsWith('[DR]'));
+            }
+            // If service_type is 'All' or empty, show all allowed states (no additional filter)
+            
+            form.set_df_property('next_step', 'options', next_step_options);
+            
+            // Clear current next_step value if it's no longer in the filtered options
+            if (form.doc.next_step && !next_step_options.includes(form.doc.next_step)) {
+                form.set_value('next_step', '');
+            }
+        } catch (e) {
+            console.error('Error updating next_step options on service_type change:', e);
+        }
+    },
+
+    after_save: async function (form: FrappeForm<SerialNoWorkflow>) {
         await processSerialNumbers(form);
     },
 
-    checkbox_force_state: function (frm) {
+    checkbox_force_state: function (form: FrappeForm<SerialNoWorkflow>) {
         try {
             const userRoles = Array.isArray(frappe.boot?.user?.roles) ? frappe.boot.user.roles : [];
             const userHasPermission = allowedRoles.some(role => userRoles.includes(role));
             if (userHasPermission) {
-                is_force_state_allowed = !!frm?.doc?.checkbox_force_state;
-                frappe.msgprint({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED) });
+                is_force_state_allowed = !!form?.doc?.checkbox_force_state;
+                frappe.show_alert({ message: __(is_force_state_allowed ? OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_ENABLED : OUTPUT_INFO_MESSAGE.FORCE_WORKFLOW_DISABLED), indicator: 'blue' });
                 console.log("is_force_state_allowed updated to:", is_force_state_allowed);
             } else {
                 is_force_state_allowed = false;
-                if (frm?.doc?.checkbox_force_state === 1 && frm.set_value) {
-                    frm.set_value('checkbox_force_state', 0);
-                    frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW) });
+                if (form?.doc?.checkbox_force_state === 1 && form.set_value) {
+                    form.set_value('checkbox_force_state', 0);
+                    frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW), indicator: 'yellow' });
+                    console.log(__(OUTPUT_INFO_MESSAGE.NO_PERMISSION_FORCE_WORKFLOW));
                 }
             }
         } catch (e) {
             is_force_state_allowed = false;
             console.error('Error processing checkbox_force_state:', e);
-            frappe.msgprint({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE) });
+            frappe.show_alert({ message: __(OUTPUT_INFO_MESSAGE.ERROR_PROCESSING_FORCE_STATE), indicator: 'red' });
         }
     }
 });
