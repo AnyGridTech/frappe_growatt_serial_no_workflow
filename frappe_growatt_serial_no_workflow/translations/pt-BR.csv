@@ -305,3 +305,33 @@ S8.RD - DISPATCH LOGISTICS,S8.RD - LOGÍSTICA DE ENVIO
 S9.RD - RECURRENCE,S9.RD - REINCIDÊNCIA
 Move Foward,Avançar Etapa
 Move Backward,Regredir Etapa
+[DR] Technical Analysis,[RD] Análise Técnica
+[DR] Compliance Statement,[RD] Declaração de Conformidade
+[DR] Tax (Inbound),[RD] Fiscal (Entrada)
+[DR] Reverse Logistics,[RD] Logística Reversa
+[DR] Received by Growatt,[RD] Recebido pela Growatt
+[DR] Stock,[RD] Estoque
+[DR] Laboratory,[RD] Laboratório
+[DR] Inventory Picking,[RD] Separação de Estoque
+[DR] Dispatch Packing,[RD] Embalagem de Despacho
+[DR] Tax (Outbound),[RD] Fiscal (Saída)
+[DR] Dispatch Logistics,[RD] Logística de Despacho
+[DR] Received by Customer,[RD] Recebido pelo Cliente
+[DR] Recurrence,[RD] Reincidência
+[AR] Technical Analysis,[RA] Análise Técnica
+[AR] Compliance Statement,[RA] Declaração de Conformidade
+[AR] Inventory Picking,[RA] Separação de Estoque
+[AR] Dispatch Packing,[RA] Embalagem de Despacho
+[AR] Tax (Outbound),[RA] Fiscal (Saída)
+[AR] Dispatch Logistics,[RA] Logística de Despacho
+[AR] Received by Customer,[RA] Recebido pelo Cliente
+[AR] Tax (Inbound),[RA] Fiscal (Entrada)
+[AR] Reverse Logistics,[RA] Logística Reversa
+[AR] Received by Growatt,[RA] Recebido pela Growatt
+[AR] Laboratory,[RA] Laboratório
+[AR] Stock,[RA] Estoque
+[AR] Stock Packing,[RA] Embalagem de Estoque
+[AR] Recurrence,[RA] Reincidência
+Replacement, Troca Avançada
+Repair, Reparo no Defeituos
+Sales, Todos
