@@ -71,7 +71,7 @@
  "links": [],
  "modified": "2025-12-10 09:52:42.680203",
  "modified_by": "Administrator",
- "module": "Ticket",
+ "module": "Frappe Growatt Serial No Workflow",
  "name": "Serial No Workflow",
  "owner": "Administrator",
  "permissions": [
