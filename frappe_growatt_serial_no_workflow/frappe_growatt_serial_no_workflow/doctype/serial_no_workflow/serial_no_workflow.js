@@ -245,27 +245,38 @@
             const mpptOptions = itemList.filter((i) => i.mppt != null).map((i) => i.mppt);
             console.log("*DEBUG* Available MPPT options:", mpptOptions);
             console.log("*DEBUG* List of returned items:", itemList);
-            const mpptDialogTitle = __("Select the number of MPPTs");
+            const mpptDialogTitle = __("Select the number of MPPTs for SN: ") + serialNumber;
             mpptDialogPromise = new Promise((resolve) => {
+              const fields = [
+                {
+                  fieldname: "sn_display",
+                  label: __("Serial Number"),
+                  fieldtype: "Data",
+                  default: serialNumber,
+                  read_only: true
+                },
+                {
+                  fieldname: "mppt_label",
+                  label: __("Select MPPT"),
+                  fieldtype: "HTML"
+                }
+              ];
+              mpptOptions.forEach((mppt, index) => {
+                fields.push({
+                  fieldname: `mppt_btn_${index}`,
+                  label: `${mppt} MPPT`,
+                  fieldtype: "Button",
+                  click: function() {
+                    const selectedItem2 = itemList.find((i) => String(i.mppt).trim() === String(mppt).trim());
+                    console.log("*DEBUG* The item selected after choosing the MPPT:", selectedItem2);
+                    agt.utils.dialog.close_by_title(mpptDialogTitle);
+                    resolve(selectedItem2);
+                  }
+                });
+              });
               agt.utils.dialog.load({
                 title: mpptDialogTitle,
-                fields: [
-                  {
-                    fieldname: "mppt",
-                    label: "MPPT",
-                    fieldtype: "Select",
-                    options: mpptOptions,
-                    reqd: true
-                  }
-                ],
-                primary_action: function(values) {
-                  const mppt = values.mppt;
-                  console.log("*DEBUG* The MPPT value selected in the dialog box.", mppt);
-                  const selectedItem2 = itemList.find((i) => String(i.mppt).trim() === String(mppt).trim());
-                  console.log("*DEBUG* The item selected after choosing the MPPT:", selectedItem2);
-                  agt.utils.dialog.close_by_title(mpptDialogTitle);
-                  resolve(selectedItem2);
-                }
+                fields
               });
             });
             const selectedItem = await mpptDialogPromise;
@@ -283,25 +294,37 @@
               }
               if (companies && companies.length > 0) {
                 const companyOptions = companies.map((c) => c.name);
-                const companyDialogTitle = __("Select the Company");
+                const companyDialogTitle = __("Select the Company for SN: ") + serialNumber;
                 const companyDialogPromise = new Promise((resolve) => {
+                  const fields = [
+                    {
+                      fieldname: "sn_display",
+                      label: __("Serial Number"),
+                      fieldtype: "Data",
+                      default: serialNumber,
+                      read_only: true
+                    },
+                    {
+                      fieldname: "company_label",
+                      label: __("Select Company"),
+                      fieldtype: "HTML"
+                    }
+                  ];
+                  companyOptions.forEach((company, index) => {
+                    fields.push({
+                      fieldname: `company_btn_${index}`,
+                      label: company,
+                      fieldtype: "Button",
+                      click: function() {
+                        console.log("*DEBUG* The Company value selected in the dialog box.", company);
+                        agt.utils.dialog.close_by_title(companyDialogTitle);
+                        resolve(company);
+                      }
+                    });
+                  });
                   agt.utils.dialog.load({
                     title: companyDialogTitle,
-                    fields: [
-                      {
-                        fieldname: "company",
-                        label: "Company",
-                        fieldtype: "Select",
-                        options: companyOptions,
-                        reqd: true
-                      }
-                    ],
-                    primary_action: function(values) {
-                      const company = values.company;
-                      console.log("*DEBUG* The Company value selected in the dialog box.", company);
-                      agt.utils.dialog.close_by_title(companyDialogTitle);
-                      resolve(company);
-                    }
+                    fields
                   });
                 });
                 companyName = await companyDialogPromise;
@@ -354,25 +377,37 @@
             }
             if (companies && companies.length > 0) {
               const companyOptions = companies.map((c) => c.name);
-              const companyDialogTitle = __("Select the Company");
+              const companyDialogTitle = __("Select the Company for SN: ") + serialNumber;
               const companyDialogPromise = new Promise((resolve) => {
+                const fields = [
+                  {
+                    fieldname: "sn_display",
+                    label: __("Serial Number"),
+                    fieldtype: "Data",
+                    default: serialNumber,
+                    read_only: true
+                  },
+                  {
+                    fieldname: "company_label",
+                    label: __("Select Company"),
+                    fieldtype: "HTML"
+                  }
+                ];
+                companyOptions.forEach((company, index) => {
+                  fields.push({
+                    fieldname: `company_btn_${index}`,
+                    label: company,
+                    fieldtype: "Button",
+                    click: function() {
+                      console.log("*DEBUG* The Company value selected in the dialog box.", company);
+                      agt.utils.dialog.close_by_title(companyDialogTitle);
+                      resolve(company);
+                    }
+                  });
+                });
                 agt.utils.dialog.load({
                   title: companyDialogTitle,
-                  fields: [
-                    {
-                      fieldname: "company",
-                      label: "Company",
-                      fieldtype: "Select",
-                      options: companyOptions,
-                      reqd: true
-                    }
-                  ],
-                  primary_action: function(values) {
-                    const company = values.company;
-                    console.log("*DEBUG* The Company value selected in the dialog box.", company);
-                    agt.utils.dialog.close_by_title(companyDialogTitle);
-                    resolve(company);
-                  }
+                  fields
                 });
               });
               companyName = await companyDialogPromise;

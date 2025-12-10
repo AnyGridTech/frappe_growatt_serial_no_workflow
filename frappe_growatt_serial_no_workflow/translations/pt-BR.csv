@@ -333,5 +333,7 @@ Move Backward,Regredir Etapa
 [AR] Stock Packing,[RA] Embalagem de Estoque
 [AR] Recurrence,[RA] Reincidência
 Replacement, Troca Avançada
-Repair, Reparo no Defeituos
+Repair, Reparo no Defeituoso
 Sales, Todos
+Process Completed, Processo Concluído
+All serial numbers were processed successfully!, Todos os números de série foram processados com sucesso!
