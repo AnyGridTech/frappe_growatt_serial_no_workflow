@@ -281,28 +281,41 @@ async function validateAndAddToForm(
                     const mpptOptions = itemList.filter((i: any) => i.mppt != null).map((i: any) => i.mppt as string);
                     console.log('*DEBUG* Available MPPT options:', mpptOptions);
                     console.log('*DEBUG* List of returned items:', itemList);
-                    const mpptDialogTitle = __('Select the number of MPPTs');
+                    const mpptDialogTitle = __('Select the number of MPPTs for SN: ') + serialNumber;
                     mpptDialogPromise = new Promise((resolve) => {
+                        const fields: any[] = [
+                            {
+                                fieldname: 'sn_display',
+                                label: __('Serial Number'),
+                                fieldtype: 'Data',
+                                default: serialNumber,
+                                read_only: true
+                            },
+                            {
+                                fieldname: 'mppt_label',
+                                label: __('Select MPPT'),
+                                fieldtype: 'HTML'
+                            }
+                        ];
+                        
+                        // Add a button for each MPPT option
+                        mpptOptions.forEach((mppt: string, index: number) => {
+                            fields.push({
+                                fieldname: `mppt_btn_${index}`,
+                                label: `${mppt} MPPT`,
+                                fieldtype: 'Button',
+                                click: function() {
+                                    const selectedItem = itemList.find((i: any) => String(i.mppt).trim() === String(mppt).trim());
+                                    console.log('*DEBUG* The item selected after choosing the MPPT:', selectedItem);
+                                    agt.utils.dialog.close_by_title(mpptDialogTitle);
+                                    resolve(selectedItem);
+                                }
+                            });
+                        });
+                        
                         agt.utils.dialog.load({
                             title: mpptDialogTitle,
-                            fields: [
-                                {
-                                    fieldname: 'mppt',
-                                    label: 'MPPT',
-                                    fieldtype: 'Select',
-                                    options: mpptOptions,
-                                    reqd: true
-                                }
-                            ],
-                            primary_action: function (values: any) {
-                                const mppt = values.mppt;
-                                console.log('*DEBUG* The MPPT value selected in the dialog box.', mppt);
-                                // Robust comparison: both to string and trim
-                                const selectedItem = itemList.find((i: any) => String(i.mppt).trim() === String(mppt).trim());
-                                console.log('*DEBUG* The item selected after choosing the MPPT:', selectedItem);
-                                agt.utils.dialog.close_by_title(mpptDialogTitle);
-                                resolve(selectedItem);
-                            }
+                            fields: fields
                         });
                     });
                     const selectedItem = await mpptDialogPromise;
@@ -324,26 +337,41 @@ async function validateAndAddToForm(
                         
                         if (companies && companies.length > 0) {
                             const companyOptions = companies.map((c: any) => c.name);
-                            const companyDialogTitle = __('Select the Company');
+                            const companyDialogTitle = __('Select the Company for SN: ') + serialNumber;
                             
                             const companyDialogPromise: Promise<string> = new Promise((resolve) => {
+                                const fields: any[] = [
+                                    {
+                                        fieldname: 'sn_display',
+                                        label: __('Serial Number'),
+                                        fieldtype: 'Data',
+                                        default: serialNumber,
+                                        read_only: true
+                                    },
+                                    {
+                                        fieldname: 'company_label',
+                                        label: __('Select Company'),
+                                        fieldtype: 'HTML'
+                                    }
+                                ];
+                                
+                                // Add a button for each company option
+                                companyOptions.forEach((company: string, index: number) => {
+                                    fields.push({
+                                        fieldname: `company_btn_${index}`,
+                                        label: company,
+                                        fieldtype: 'Button',
+                                        click: function() {
+                                            console.log('*DEBUG* The Company value selected in the dialog box.', company);
+                                            agt.utils.dialog.close_by_title(companyDialogTitle);
+                                            resolve(company);
+                                        }
+                                    });
+                                });
+                                
                                 agt.utils.dialog.load({
                                     title: companyDialogTitle,
-                                    fields: [
-                                        {
-                                            fieldname: 'company',
-                                            label: 'Company',
-                                            fieldtype: 'Select',
-                                            options: companyOptions,
-                                            reqd: true
-                                        }
-                                    ],
-                                    primary_action: function (values: any) {
-                                        const company = values.company;
-                                        console.log('*DEBUG* The Company value selected in the dialog box.', company);
-                                        agt.utils.dialog.close_by_title(companyDialogTitle);
-                                        resolve(company);
-                                    }
+                                    fields: fields
                                 });
                             });
                             
@@ -404,26 +432,41 @@ async function validateAndAddToForm(
                     
                     if (companies && companies.length > 0) {
                         const companyOptions = companies.map((c: any) => c.name);
-                        const companyDialogTitle = __('Select the Company');
+                        const companyDialogTitle = __('Select the Company for SN: ') + serialNumber;
                         
                         const companyDialogPromise: Promise<string> = new Promise((resolve) => {
+                            const fields: any[] = [
+                                {
+                                    fieldname: 'sn_display',
+                                    label: __('Serial Number'),
+                                    fieldtype: 'Data',
+                                    default: serialNumber,
+                                    read_only: true
+                                },
+                                {
+                                    fieldname: 'company_label',
+                                    label: __('Select Company'),
+                                    fieldtype: 'HTML'
+                                }
+                            ];
+                            
+                            // Add a button for each company option
+                            companyOptions.forEach((company: string, index: number) => {
+                                fields.push({
+                                    fieldname: `company_btn_${index}`,
+                                    label: company,
+                                    fieldtype: 'Button',
+                                    click: function() {
+                                        console.log('*DEBUG* The Company value selected in the dialog box.', company);
+                                        agt.utils.dialog.close_by_title(companyDialogTitle);
+                                        resolve(company);
+                                    }
+                                });
+                            });
+                            
                             agt.utils.dialog.load({
                                 title: companyDialogTitle,
-                                fields: [
-                                    {
-                                        fieldname: 'company',
-                                        label: 'Company',
-                                        fieldtype: 'Select',
-                                        options: companyOptions,
-                                        reqd: true
-                                    }
-                                ],
-                                primary_action: function (values: any) {
-                                    const company = values.company;
-                                    console.log('*DEBUG* The Company value selected in the dialog box.', company);
-                                    agt.utils.dialog.close_by_title(companyDialogTitle);
-                                    resolve(company);
-                                }
+                                fields: fields
                             });
                         });
                         

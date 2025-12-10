@@ -19,14 +19,13 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Serial No Workflow",
-   "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
+   "fieldname": "service_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Service Type",
+   "options": "\nReplacement\nRepair\nAll",
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "next_step",
@@ -56,21 +55,23 @@
    "reqd": 1
   },
   {
-   "fieldname": "service_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Service Type",
-   "options": "Replacement\nRepair\nSales",
-   "set_only_once": 1
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Serial No Workflow",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-04 15:01:22.251004",
+ "modified": "2025-12-10 09:52:42.680203",
  "modified_by": "Administrator",
- "module": "Frappe Growatt Serial No Workflow",
+ "module": "Ticket",
  "name": "Serial No Workflow",
  "owner": "Administrator",
  "permissions": [
