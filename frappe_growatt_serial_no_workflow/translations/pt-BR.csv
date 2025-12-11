@@ -333,7 +333,14 @@ Move Backward,Regredir Etapa
 [AR] Stock Packing,[RA] Embalagem de Estoque
 [AR] Recurrence,[RA] Reincidência
 Replacement, Troca Avançada
-Repair, Reparo no Defeituoso
+Repair, Reparo no Defeituos
 Sales, Todos
-Process Completed, Processo Concluído
-All serial numbers were processed successfully!, Todos os números de série foram processados com sucesso!
+Complete information for SN: ,Complete as informações para o SN: 
+Model,Modelo
+MPPT not selected.,MPPT não selecionado.
+Company not selected.,Empresa não selecionada.
+SN created successfully.,SN criado com sucesso.
+SN updated successfully.,SN atualizado com sucesso.
+Processing Serial Numbers...,Processando Números de Série...
+Process Completed,Processo Concluído
+All serial numbers were processed successfully!,Todos os números de série foram processados com sucesso!
