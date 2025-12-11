@@ -146,13 +146,13 @@
   }
   async function CheckSerialNumber(sn) {
     let printError = "";
-    if (!sn) return { item: void 0, snInfo: void 0, printError: "Empty SN." };
+    if (!sn) return { item: void 0, snInfo: void 0, printError: "Empty SN.", growattModel: void 0 };
     let snInfo;
     try {
       snInfo = await get_sn_info(sn);
     } catch (e) {
       printError = "Error fetching SN info.";
-      return { item: void 0, snInfo: void 0, printError };
+      return { item: void 0, snInfo: void 0, printError, growattModel: void 0 };
     }
     if (!snInfo || Object.keys(snInfo).length === 0) {
       let sn2;
@@ -160,19 +160,19 @@
         sn2 = await agt?.utils?.get_growatt_sn_info?.(sn);
       } catch (e) {
         printError = "Error fetching SN from Growatt.";
-        return { item: void 0, snInfo: void 0, printError };
+        return { item: void 0, snInfo: void 0, printError, growattModel: void 0 };
       }
-      if (!sn2 || !sn2.data || !sn2.data.model) return { item: void 0, snInfo: void 0, printError };
+      if (!sn2 || !sn2.data || !sn2.data.model) return { item: void 0, snInfo: void 0, printError, growattModel: void 0 };
       let item;
       try {
         item = await get_item_info_by_model(sn2.data.model);
       } catch (e) {
         printError = "Error fetching item info.";
-        return { item: void 0, snInfo: void 0, printError };
+        return { item: void 0, snInfo: void 0, printError, growattModel: void 0 };
       }
-      return { item, snInfo: void 0, printError };
+      return { item, snInfo: void 0, printError, growattModel: sn2.data.model };
     }
-    return { item: {}, snInfo, printError: "" };
+    return { item: {}, snInfo, printError: "", growattModel: void 0 };
   }
   function getOrCreateChildRow(form) {
     if (!form || !form.doc) throw new Error("Invalid form.");
@@ -197,13 +197,12 @@
     let isValid = false;
     let outputInfo = "";
     let snInfo = void 0;
-    let mpptDialogPromise = null;
     if (!agt?.utils?.validate_serial_number?.(serialNumber)) {
       message = `<b>${serialNumber}:</b>\u26A0\uFE0F ${OUTPUT_INFO_MESSAGE.SN_INVALID}`;
       outputInfo = OUTPUT_INFO_MESSAGE.SN_INVALID;
     } else {
       try {
-        const { item, snInfo: snInfo2, printError } = await CheckSerialNumber(serialNumber);
+        const { item, snInfo: snInfo2, printError, growattModel } = await CheckSerialNumber(serialNumber);
         if (printError) {
           message = `<b>${serialNumber}: </b>\u274C ${printError}`;
           outputInfo = printError;
@@ -241,192 +240,130 @@
           outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_ERP;
         } else if (item && !snInfo2) {
           const itemList = Array.isArray(item) ? item : [item];
-          if (itemList.length > 1 && itemList[0].mppt) {
-            const mpptOptions = itemList.filter((i) => i.mppt != null).map((i) => i.mppt);
-            console.log("*DEBUG* Available MPPT options:", mpptOptions);
-            console.log("*DEBUG* List of returned items:", itemList);
-            const mpptDialogTitle = __("Select the number of MPPTs for SN: ") + serialNumber;
-            mpptDialogPromise = new Promise((resolve) => {
-              const fields = [
-                {
-                  fieldname: "sn_display",
-                  label: __("Serial Number"),
-                  fieldtype: "Data",
-                  default: serialNumber,
-                  read_only: true
-                },
-                {
-                  fieldname: "mppt_label",
-                  label: __("Select MPPT"),
-                  fieldtype: "HTML"
-                }
-              ];
-              mpptOptions.forEach((mppt, index) => {
-                fields.push({
-                  fieldname: `mppt_btn_${index}`,
-                  label: `${mppt} MPPT`,
-                  fieldtype: "Button",
-                  click: function() {
-                    const selectedItem2 = itemList.find((i) => String(i.mppt).trim() === String(mppt).trim());
-                    console.log("*DEBUG* The item selected after choosing the MPPT:", selectedItem2);
-                    agt.utils.dialog.close_by_title(mpptDialogTitle);
-                    resolve(selectedItem2);
-                  }
-                });
-              });
-              agt.utils.dialog.load({
-                title: mpptDialogTitle,
-                fields
-              });
+          let companies = [];
+          try {
+            companies = await frappe.db.get_list("Company", {
+              fields: ["name"],
+              filters: { name: ["in", ["Anygrid", "Growatt"]] }
             });
-            const selectedItem = await mpptDialogPromise;
-            if (selectedItem && selectedItem.item_code && selectedItem.item_name) {
-              modelInfo = selectedItem.item_code;
-              modelName = selectedItem.item_name;
-              let companies = [];
-              try {
-                companies = await frappe.db.get_list("Company", {
-                  fields: ["name"],
-                  filters: { name: ["in", ["Anygrid", "Growatt"]] }
-                });
-              } catch (e) {
-                console.error("Error fetching companies:", e);
+          } catch (e) {
+            console.error("Error fetching companies:", e);
+          }
+          const companyOptions = companies && companies.length > 0 ? companies.map((c) => c.name) : [];
+          const itemsWithMPPT = itemList.filter((i) => i.mppt != null);
+          const hasMPPT = itemsWithMPPT.length > 1;
+          const mpptOptions = hasMPPT ? itemsWithMPPT.map((i) => i.mppt) : [];
+          console.log("*DEBUG* Available MPPT options:", mpptOptions);
+          console.log("*DEBUG* List of returned items:", itemList);
+          console.log("*DEBUG* Items with MPPT:", itemsWithMPPT);
+          const dialogTitle = __("Complete information for SN: ") + serialNumber;
+          const dialogFields = [
+            {
+              fieldname: "sn_display",
+              label: __("Serial Number"),
+              fieldtype: "Data",
+              default: serialNumber,
+              read_only: true
+            },
+            {
+              fieldname: "model_display",
+              label: __("Model"),
+              fieldtype: "Data",
+              default: growattModel || "",
+              read_only: true
+            }
+          ];
+          if (hasMPPT) {
+            dialogFields.push({
+              fieldname: "mppt",
+              label: "MPPT",
+              fieldtype: "Select",
+              options: mpptOptions,
+              reqd: true
+            });
+          }
+          if (companyOptions.length > 0) {
+            dialogFields.push({
+              fieldname: "company",
+              label: "Company",
+              fieldtype: "Select",
+              options: companyOptions,
+              reqd: true
+            });
+          }
+          const selectionPromise = new Promise((resolve) => {
+            let isResolved = false;
+            const dialog = agt.utils.dialog.load({
+              title: dialogTitle,
+              fields: dialogFields,
+              primary_action: function(values) {
+                console.log("*DEBUG* Values selected in the dialog:", values);
+                isResolved = true;
+                agt.utils.dialog.close_by_title(dialogTitle);
+                resolve(values);
               }
-              if (companies && companies.length > 0) {
-                const companyOptions = companies.map((c) => c.name);
-                const companyDialogTitle = __("Select the Company for SN: ") + serialNumber;
-                const companyDialogPromise = new Promise((resolve) => {
-                  const fields = [
-                    {
-                      fieldname: "sn_display",
-                      label: __("Serial Number"),
-                      fieldtype: "Data",
-                      default: serialNumber,
-                      read_only: true
-                    },
-                    {
-                      fieldname: "company_label",
-                      label: __("Select Company"),
-                      fieldtype: "HTML"
-                    }
-                  ];
-                  companyOptions.forEach((company, index) => {
-                    fields.push({
-                      fieldname: `company_btn_${index}`,
-                      label: company,
-                      fieldtype: "Button",
-                      click: function() {
-                        console.log("*DEBUG* The Company value selected in the dialog box.", company);
-                        agt.utils.dialog.close_by_title(companyDialogTitle);
-                        resolve(company);
-                      }
-                    });
-                  });
-                  agt.utils.dialog.load({
-                    title: companyDialogTitle,
-                    fields
-                  });
-                });
-                companyName = await companyDialogPromise;
-                if (!companyName) {
-                  console.warn("*DEBUG* No Company was selected in the dialog.");
-                  message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED)}`;
-                  outputInfo = OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED;
-                  return message;
+            });
+            if (dialog && dialog["$wrapper"]) {
+              dialog["$wrapper"].on("hide.bs.modal", function() {
+                if (!isResolved) {
+                  console.log("*DEBUG* Dialog was closed without confirmation.");
+                  isResolved = true;
+                  resolve(null);
                 }
-              } else {
-                companyName = "";
-              }
-              isValid = true;
-              message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo}, ${__("Company:")} ${companyName})`;
-              outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
-              const child = getOrCreateChildRow(form);
-              child.serial_no = serialNumber;
-              child.item_code = modelInfo;
-              child.item_name = modelName;
-              child.company = companyName;
-              child.next_step = selectedState;
-              child.current_workflow_state = "";
-              child.output_info = outputInfo;
-              child.is_valid = 1;
-              form.refresh_field("serial_no_table");
-              return message;
-            } else if (selectedItem) {
-              console.warn("*DEBUG* Selected item does not have valid data:", selectedItem);
-              message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
-              outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
-              return message;
-            } else {
-              console.warn("*DEBUG* No MPPT was selected in the dialog.");
-              message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED)}`;
-              outputInfo = OUTPUT_INFO_MESSAGE.MPPT_NOT_SELECTED;
-              return message;
+              });
             }
+          });
+          const selectedValues = await selectionPromise;
+          if (!selectedValues) {
+            console.warn("*DEBUG* Dialog was closed, process interrupted for SN:", serialNumber);
+            message = `<b>${serialNumber}:</b>\u26A0\uFE0F ${__(OUTPUT_INFO_MESSAGE.PROCESS_ABORTED)}`;
+            outputInfo = OUTPUT_INFO_MESSAGE.PROCESS_ABORTED;
+            return message;
+          }
+          let selectedItem;
+          if (hasMPPT && selectedValues.mppt) {
+            selectedItem = itemsWithMPPT.find((i) => String(i.mppt).trim() === String(selectedValues.mppt).trim());
+            console.log("*DEBUG* The item selected after choosing the MPPT:", selectedItem);
           } else if (itemList.length === 1) {
-            const realItem = itemList[0];
-            modelInfo = realItem.item_code;
-            modelName = realItem.item_name;
-            let companies = [];
-            try {
-              companies = await frappe.db.get_list("Company", {
-                fields: ["name"],
-                filters: { name: ["in", ["Anygrid", "Growatt"]] }
-              });
-            } catch (e) {
-              console.error("Error fetching companies:", e);
-            }
-            if (companies && companies.length > 0) {
-              const companyOptions = companies.map((c) => c.name);
-              const companyDialogTitle = __("Select the Company for SN: ") + serialNumber;
-              const companyDialogPromise = new Promise((resolve) => {
-                const fields = [
-                  {
-                    fieldname: "sn_display",
-                    label: __("Serial Number"),
-                    fieldtype: "Data",
-                    default: serialNumber,
-                    read_only: true
-                  },
-                  {
-                    fieldname: "company_label",
-                    label: __("Select Company"),
-                    fieldtype: "HTML"
-                  }
-                ];
-                companyOptions.forEach((company, index) => {
-                  fields.push({
-                    fieldname: `company_btn_${index}`,
-                    label: company,
-                    fieldtype: "Button",
-                    click: function() {
-                      console.log("*DEBUG* The Company value selected in the dialog box.", company);
-                      agt.utils.dialog.close_by_title(companyDialogTitle);
-                      resolve(company);
-                    }
-                  });
-                });
-                agt.utils.dialog.load({
-                  title: companyDialogTitle,
-                  fields
-                });
-              });
-              companyName = await companyDialogPromise;
-              if (!companyName) {
-                console.warn("*DEBUG* No Company was selected in the dialog.");
-                message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED)}`;
-                outputInfo = OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED;
-                return message;
-              }
-            } else {
-              companyName = "";
-            }
-            isValid = true;
-            message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo}, ${__("Company:")} ${companyName})`;
-            outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
+            selectedItem = itemList[0];
+          } else if (!hasMPPT && itemList.length > 0) {
+            selectedItem = itemList[0];
+            console.log("*DEBUG* Multiple items without MPPT, using first:", selectedItem);
           } else {
+            console.warn("*DEBUG* No valid item selection logic matched.");
             message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
             outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
+            return message;
           }
+          if (!selectedItem || !selectedItem.item_code || !selectedItem.item_name) {
+            console.warn("*DEBUG* Selected item does not have valid data:", selectedItem);
+            message = `<b>${serialNumber}: </b>${__(OUTPUT_INFO_MESSAGE.SN_NOT_FOUND)}`;
+            outputInfo = OUTPUT_INFO_MESSAGE.SN_NOT_FOUND;
+            return message;
+          }
+          modelInfo = selectedItem.item_code;
+          modelName = selectedItem.item_name;
+          companyName = selectedValues.company || "";
+          if (companyOptions.length > 0 && !companyName) {
+            console.warn("*DEBUG* No Company was selected in the dialog.");
+            message = `<b>${serialNumber}:</b>\u274C ${__(OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED)}`;
+            outputInfo = OUTPUT_INFO_MESSAGE.COMPANY_NOT_SELECTED;
+            return message;
+          }
+          isValid = true;
+          message = `<b>${serialNumber}:</b>\u2714\uFE0F ${__(OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT)} (${__("Eq:")} ${modelName}, ${__("Code:")} ${modelInfo}, ${__("Company:")} ${companyName})`;
+          outputInfo = OUTPUT_INFO_MESSAGE.SN_FOUND_GROWATT;
+          const child = getOrCreateChildRow(form);
+          child.serial_no = serialNumber;
+          child.item_code = modelInfo;
+          child.item_name = modelName;
+          child.company = companyName;
+          child.next_step = selectedState;
+          child.current_workflow_state = "";
+          child.output_info = outputInfo;
+          child.is_valid = 1;
+          form.refresh_field("serial_no_table");
+          return message;
         }
         if (snInfo2 && sn_workflow && Array.isArray(sn_workflow.transitions)) {
           const available_transitions = sn_workflow.transitions.filter(
